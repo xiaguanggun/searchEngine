@@ -3,12 +3,12 @@
 
 #include <string>
 #include <map>
-#include <set>
+#include <unordered_set>
 #include <fstream>
 #include "Mylogger.h"
 using std::string;
 using std::map;
-using std::set;
+using std::unordered_set;
 using std::ifstream;
 
 // 单例
@@ -22,14 +22,14 @@ public:
     static map<string,string>& getConfigMap(){
         return getInstance()->_configs;
     }
-    static set<string>& getStopWords(){
+    static unordered_set<string>& getStopWords(){
         return getInstance()->_stopWords;
     }
 private:
     static Configuration * _pInstance;
     static string _confFilePath;
     map<string,string> _configs;
-    set<string> _stopWords;
+    unordered_set<string> _stopWords;
 };
 
 inline void Configuration::setConfFilePath(const string& filename){

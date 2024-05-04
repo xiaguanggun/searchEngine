@@ -94,7 +94,7 @@ void PageLibPreprocessor::cutRedundantPage() {
 // 构建倒排索引
 void PageLibPreprocessor::bulidInvertIndexMap() {
     size_t pageNum = _pageLib.size(); // 网页数量
-    const set<string>& stopWords = _pconf->getStopWords(); // 停用词
+    const unordered_set<string>& stopWords = _pconf->getStopWords(); // 停用词
     // 总共三次循环遍历
     // 1. 统计文章内词频TF & 统计多少文章出现过DF & 构建倒排索引第一版(string & map<docId,?>)
     map<string,size_t> docCounts; // 多少文章出现过DF
@@ -146,7 +146,7 @@ void PageLibPreprocessor::bulidInvertIndexMap() {
 }
 
 // 存储到磁盘文件
-// 网页库:xml 网页偏移库:docId,pos,len 倒排索引库:json
+// 网页库:xml 网页偏移库:docId,pos,len为一行 倒排索引库:string int+w&int+w...为一行
 void PageLibPreprocessor::storeOnDisk() {
     // 1 获取配置文件
     auto configs = _pconf->getConfigMap();
@@ -183,20 +183,21 @@ void PageLibPreprocessor::storeOnDisk() {
     ofs2.close();
     // 3 倒排索引库
     // unordered_map<string,map<size_t,double>> _invertIndexLib;
-    nlohmann::json root;
-    for(const auto& entry : _invertIndexLib){
-        nlohmann::json inner_map;
-        for(const auto& inner_entry : entry.second){
-            inner_map[std::to_string(inner_entry.first)] = inner_entry.second;
-        }
-        root[entry.first] = inner_map;
-    }
     ofs1.open(invertIndexLib);
     if(!ofs1){
         LogError("open invertIndexLib failed");
+        return;
     }
-    else {
-        ofs1 << root;
-        ofs1.close();
+    /* nlohmann::json root; */
+    for(const auto& entry : _invertIndexLib){
+        /* nlohmann::json inner_map; */
+        ofs1 << entry.first << " ";
+        for(const auto& inner_entry : entry.second){
+            /* inner_map[std::to_string(inner_entry.first)] = inner_entry.second; */
+            ofs1 << inner_entry.first << " " << inner_entry.second << " ";
+        }
+        /* root[entry.first] = inner_map; */
+        ofs1 << "\n";
     }
+    ofs1.close();
 }
