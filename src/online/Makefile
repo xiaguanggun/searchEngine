@@ -1,6 +1,8 @@
 REACTOR:=../reactor
 SHARED:=../shared
-OUT:=../../bin/webquery
+SERVER:=../../bin/server
+KEYWORD:=../../bin/keyword
+WEBQUERY:=../../bin/webquery
 LIBS:= -llog4cpp -lpthread
 SRCS:=$(wildcard *.cpp)
 OBJS:=$(patsubst %.cpp,%.o,$(SRCS))
@@ -10,7 +12,12 @@ REACTORSRCS:=$(wildcard $(REACTOR)/*.cpp)
 REACTOROBJS:=$(patsubst $(REACTOR)/%.cpp,$(REACTOR)/%.o,$(REACTORSRCS))
 CC:=g++
 # 目标 : 依赖
-$(OUT):$(OBJS) $(SHAREDOBJS) $(REACTOROBJS)
+$(SERVER):$(filter-out keyword.o webquery.o,$(OBJS)) $(SHAREDOBJS) $(REACTOROBJS)
+	$(CC) $^ -o $@ $(LIBS) -g
+all:$(KEYWORD) $(WEBQUERY)
+$(KEYWORD):$(filter-out server.o webquery.o,$(OBJS)) $(SHAREDOBJS) $(REACTOROBJS)
+	$(CC) $^ -o $@ $(LIBS) -g
+$(WEBQUERY):$(filter-out keyword.o server.o,$(OBJS)) $(SHAREDOBJS) $(REACTOROBJS)
 	$(CC) $^ -o $@ $(LIBS) -g
 %.o:%.cpp
 	$(CC) -c $^ -o $@ -g
@@ -21,5 +28,5 @@ $(REACTOR)/%.o:$(REACTOR)/%.cpp
 
 .PHONY:clean rebuild
 clean:
-	$(RM) $(OUT) $(OBJS) $(SHAREDOBJS) $(REACTOROBJS)
-rebuild:clean $(OUT)
+	$(RM) $(SERVER) $(KEYWORD) $(WEBQUERY) $(OBJS) $(SHAREDOBJS) $(REACTOROBJS)
+rebuild:clean $(SERVER)
