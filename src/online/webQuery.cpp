@@ -1,10 +1,10 @@
 #include <iostream>
 #include <fstream>
-#include "macro.h"
-#include "Reactor.h"
+#include "../reactor/macro.h"
+#include "../reactor/Reactor.h"
 
-#include "../outline/Configuration.h"
-#include "../outline/Mylogger.h"
+#include "../shared/Configuration.h"
+#include "../shared/Mylogger.h"
 
 using namespace std;
 
