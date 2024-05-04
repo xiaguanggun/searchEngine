@@ -23,4 +23,9 @@ private:
     CppJiebaImpl * _pimpl;
 };
 
+class SplitToolChar: public SplitTool{
+public:
+    vector<string> cutWord(const string& sentence) override;
+};
+
 #endif //_SPLITTOOL_H

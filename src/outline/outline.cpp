@@ -45,17 +45,24 @@ void test_PageLibPreprocessor(){
 void test_DictProducer(){
     auto configs = Configuration::getConfigMap();
     SplitToolCppJieba Jieba(Configuration::getInstance());
-    DictProducer dp(configs["dict_files_zh"],&Jieba);
-    dp.buildDict();
+    SplitToolChar Char;
+    DictProducer dp1(configs["dict_files_zh"],&Char,&Jieba);
+    DictProducer dp2(configs["dict_files_eng"],&Char);
+    dp1.buildDict();
+    dp2.buildDict();
+    dp1.createIndex();
+    dp2.createIndex();
+    dp1.store();
+    dp2.store();
 }
 
 int main()
 {
-    /* test_PageLib(); */
+    test_PageLib();
     /* test_Mylogger(); */
     /* test_Configuration(); */
     /* test_SplitTool(); */
-    /* test_PageLibPreprocessor(); */
+    test_PageLibPreprocessor();
     test_DictProducer();
 
     return 0;
