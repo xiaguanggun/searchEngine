@@ -5,6 +5,7 @@
 
 #include "../shared/Configuration.h"
 #include "../shared/Mylogger.h"
+#include "Dictionary.h"
 
 using namespace std;
 
@@ -30,6 +31,9 @@ int main()
     }
     /* cout << threadNum << qSize << ip << port << timeout << "\n"; */
     ifs.close();
+    // 初始化dict
+    Dictionary::init(Configuration::getInstance());
+    // 启动服务器
     Reactor server(threadNum,qSize,ip,port,timeout);
     server.start();
 

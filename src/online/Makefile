@@ -14,7 +14,6 @@ CC:=g++
 # 目标 : 依赖
 $(SERVER):$(filter-out keyword.o webquery.o,$(OBJS)) $(SHAREDOBJS) $(REACTOROBJS)
 	$(CC) $^ -o $@ $(LIBS) -g
-all:$(KEYWORD) $(WEBQUERY)
 $(KEYWORD):$(filter-out server.o webquery.o,$(OBJS)) $(SHAREDOBJS) $(REACTOROBJS)
 	$(CC) $^ -o $@ $(LIBS) -g
 $(WEBQUERY):$(filter-out keyword.o server.o,$(OBJS)) $(SHAREDOBJS) $(REACTOROBJS)
@@ -26,7 +25,10 @@ $(SHARED)/%.o:$(SHARED)/%.cpp
 $(REACTOR)/%.o:$(REACTOR)/%.cpp
 	$(CC) -c $^ -o $@ -g
 
-.PHONY:clean rebuild
+.PHONY:all keyword webquery clean rebuild
+all:$(KEYWORD) $(WEBQUERY)
+keyword:$(KEYWORD)
+webquery:$(WEBQUERY)
 clean:
 	$(RM) $(SERVER) $(KEYWORD) $(WEBQUERY) $(OBJS) $(SHAREDOBJS) $(REACTOROBJS)
 rebuild:clean $(SERVER)
