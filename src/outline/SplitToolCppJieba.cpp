@@ -48,10 +48,9 @@ SplitToolCppJieba::CppJiebaImpl::~CppJiebaImpl(){
         _pjieba = nullptr;
     }
 }
-// TODO...
 vector<string> SplitToolCppJieba::CppJiebaImpl::cutAll(const string& sentence){
     vector<string> words;
-    _pjieba->Cut(sentence,words,true);
+    //
     return words;
 }
 vector<string> SplitToolCppJieba::CppJiebaImpl::cutWord(const string& sentence){

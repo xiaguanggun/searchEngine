@@ -5,6 +5,7 @@
 #include "Configuration.h"
 #include "SplitTool.h"
 #include "PageLibPreprocessor.h"
+#include "DictProducer.h"
 using namespace std;
 
 void test_PageLib(){
@@ -41,13 +42,21 @@ void test_PageLibPreprocessor(){
     plp.storeOnDisk();
 }
 
+void test_DictProducer(){
+    auto configs = Configuration::getConfigMap();
+    SplitToolCppJieba Jieba(Configuration::getInstance());
+    DictProducer dp(configs["dict_files_zh"],&Jieba);
+    dp.buildDict();
+}
+
 int main()
 {
     /* test_PageLib(); */
     /* test_Mylogger(); */
     /* test_Configuration(); */
     /* test_SplitTool(); */
-    test_PageLibPreprocessor();
+    /* test_PageLibPreprocessor(); */
+    test_DictProducer();
 
     return 0;
 }

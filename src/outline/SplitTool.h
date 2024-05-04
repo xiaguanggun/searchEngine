@@ -9,7 +9,9 @@ using std::string;
 class SplitTool {
 public: 
     virtual ~SplitTool(){};
+    // 切分成字符
     virtual vector<string> cutAll(const string& sentence) = 0;
+    // 切分成单词
     virtual vector<string> cutWord(const string& sentence) = 0;
 };
 
