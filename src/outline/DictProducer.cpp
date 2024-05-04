@@ -1,5 +1,7 @@
 #include <sstream>
 #include <iterator>
+#include "../shared/Configuration.h"
+#include "../shared/SplitTool.h"
 #include "DirScanner.h"
 #include "DictProducer.h"
 using std::istringstream;

@@ -1,14 +1,17 @@
 #ifndef _DICTPRODUCER_H
 #define _DICTPRODUCER_H
 
+#include <vector>
+#include <string>
 #include <set>
 #include <unordered_map>
-#include "../shared/Configuration.h"
-#include "../shared/SplitTool.h"
+using std::vector;
+using std::string;
 using std::set;
 using std::pair;
 using std::unordered_map;
 
+class SplitTool;
 class DictProducer {
 public: 
     DictProducer(const string& dir_eng,SplitTool * pChar); // 处理英文
