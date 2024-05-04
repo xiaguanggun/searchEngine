@@ -19,12 +19,8 @@ public:
     static void setConfFilePath(const string& filename);
     static Configuration * getInstance();
     static void destory();
-    static map<string,string>& getConfigMap(){
-        return getInstance()->_configs;
-    }
-    static unordered_set<string>& getStopWords(){
-        return getInstance()->_stopWords;
-    }
+    static map<string,string>& getConfigMap();
+    static unordered_set<string>& getStopWords();
 private:
     static Configuration * _pInstance;
     static string _confFilePath;
@@ -47,6 +43,13 @@ inline void Configuration::destory(){
         delete _pInstance;
         _pInstance = nullptr;
     }
+}
+
+inline map<string,string>& Configuration::getConfigMap(){
+    return getInstance()->_configs;
+}
+inline unordered_set<string>& Configuration::getStopWords(){
+    return getInstance()->_stopWords;
 }
 
 #endif //_CONFIGURATION_H
