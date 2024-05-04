@@ -1,6 +1,6 @@
 #include <dirent.h>
 
-#include "Mylogger.h"
+#include "../shared/Mylogger.h"
 #include "DirScanner.h"
 
 void DirScanner::traverse(const string& dir) {

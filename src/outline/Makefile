@@ -1,22 +1,21 @@
-INCLUDES:=../../include
+SHARED:=../shared
+OUT:=../../bin/outline
+LIBS:= -llog4cpp -lpthread
 SRCS:=$(wildcard *.cpp) 
-LIBS:=  -llog4cpp -lpthread
 OBJS:=$(patsubst %.cpp, %.o, $(SRCS))
-SERVER:=../../bin/outline
-
+SHAREDSRCS:=$(wildcard $(SHARED)/*.cpp)
+SHAREDOBJS:=$(patsubst $(SHARED)/%.cpp,$(SHARED)/%.o,$(SHAREDSRCS))
+EXCLUDE_OBJS:=$(SHARED)/webquery.o
+CC:=g++
 # 目标 : 依赖
-$(SERVER): $(OBJS)
-	@#g++ $^ -o $@ $(LIBS) $(addprefix -I, $(INCLUDES)) -g
-	g++ $^ -o $@ $(LIBS) -g
-
+$(OUT):$(OBJS) $(filter-out $(EXCLUDE_OBJS),$(SHAREDOBJS))
+	$(CC) $^ -o $@ $(LIBS) -g
 %.o:%.cpp
-	@#g++ -c $^ -o $@ $(addprefix -I, $(INCLUDES)) -g
-	g++ -c $^ -o $@ -g
+	$(CC) -c $^ -o $@ -g
+$(SHARED)/%.o:$(SHARED)/%.cpp
+	$(CC) -c $^ -o $@ -g
 
-.PHONY:echo clean
-echo:
-	echo $(INCLUDES)
-	echo $(SRCS)
-
+.PHONY:clean rebuild
 clean:
-	rm -rf $(OBJS) $(SERVER)
+	$(RM) $(OUT) $(OBJS) $(SHAREDOBJS)
+rebuild:clean $(OUT)

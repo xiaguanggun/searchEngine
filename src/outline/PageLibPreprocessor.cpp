@@ -1,10 +1,10 @@
 #include <unordered_set>
 #include <functional>
 #include <wfrest/json.hpp>
-#include "tinyxml2.h"
-#include "Mylogger.h"
-#include "Configuration.h"
-#include "SplitTool.h"
+#include "../shared/tinyxml2.h"
+#include "../shared/Mylogger.h"
+#include "../shared/Configuration.h"
+#include "../shared/SplitTool.h"
 #include "PageLibPreprocessor.h"
 using namespace std::placeholders;
 using namespace tinyxml2;

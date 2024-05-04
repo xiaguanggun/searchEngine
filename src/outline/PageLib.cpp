@@ -1,8 +1,8 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
-#include "Configuration.h"
-#include "Mylogger.h"
+#include "../shared/Configuration.h"
+#include "../shared/Mylogger.h"
 #include "PageLib.h"
 using std::ostringstream;
 using std::ofstream;

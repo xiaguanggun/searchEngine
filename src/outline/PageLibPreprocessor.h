@@ -5,7 +5,7 @@
 #include <unordered_map>
 #include <memory>
 #include "../../include/simhash/Simhasher.hpp"
-#include "WebPage.h"
+#include "../shared/WebPage.h"
 using std::vector;
 using std::unordered_map;
 using std::pair;

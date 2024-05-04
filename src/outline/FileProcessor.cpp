@@ -1,7 +1,7 @@
 #include <regex>
 #include <sstream>
-#include "tinyxml2.h"
-#include "Mylogger.h"
+#include "../shared/tinyxml2.h"
+#include "../shared/Mylogger.h"
 #include "FileProcessor.h"
 using namespace tinyxml2;
 using std::ostringstream;

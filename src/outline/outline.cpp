@@ -1,9 +1,9 @@
 #include <iostream>
 #include <string>
 #include "PageLib.h"
-#include "Mylogger.h"
-#include "Configuration.h"
-#include "SplitTool.h"
+#include "../shared/Mylogger.h"
+#include "../shared/Configuration.h"
+#include "../shared/SplitTool.h"
 #include "PageLibPreprocessor.h"
 #include "DictProducer.h"
 using namespace std;
