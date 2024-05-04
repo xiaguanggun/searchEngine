@@ -21,11 +21,10 @@ public:
 	void debug(const char *msg);
 	
     static Mylogger * getInstance();
-    static void destory();
 private:
 	Mylogger();
 	~Mylogger();
-    
+    static void destory();
 private:
     log4cpp::Category & _mycat;
     static Mylogger * _pInstance;

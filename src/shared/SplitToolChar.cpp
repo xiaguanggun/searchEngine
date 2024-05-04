@@ -2,7 +2,7 @@
 #include "SplitTool.h"
 
 // 获取下一个字符的字节数
-size_t nBytesCode(const char ch){
+inline size_t nBytesCode(const char ch){
     if(ch & (1 << 7)){
         int nBytes = 1;
         for(int idx = 0; idx != 6; ++idx){

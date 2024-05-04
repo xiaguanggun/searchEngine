@@ -15,6 +15,7 @@ using std::ifstream;
 class Configuration {
 private:
     Configuration();
+    ~Configuration(){}
 public:
     static void setConfFilePath(const string& filename);
     static Configuration * getInstance();
