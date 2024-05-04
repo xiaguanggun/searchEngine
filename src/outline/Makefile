@@ -1,4 +1,4 @@
-INCLUDES:=../include
+INCLUDES:=../../include
 SRCS:=$(wildcard *.cpp) 
 LIBS:=  -llog4cpp -lpthread
 OBJS:=$(patsubst %.cpp, %.o, $(SRCS))
