@@ -1,4 +1,3 @@
-#include <algorithm>
 #include <sstream>
 #include <iterator>
 #include "DirScanner.h"
@@ -83,7 +82,10 @@ void DictProducer::buildEnDict() {
         string line;
         while(getline(ifs,line)){
             // 英文分词
-            replace_if(line.begin(),line.end(),::ispunct,' '); // 把标点符号去掉
+            for(auto &ch:line){
+                if(::ispunct(ch) || ::isdigit(ch)){ ch = ' '; } // 去掉标点符号 & 数字
+                if(::isupper(ch)){ ch = ::tolower(ch); } // 变为全小写
+            }
             istringstream iss(line);
             // 使用流迭代器插入vector
             vector<string> words{std::istream_iterator<string>(iss),std::istream_iterator<string>()};
@@ -118,9 +120,9 @@ void DictProducer::buildCnDict() {
         while(getline(ifs,line)){
             // 中文分词
             vector<string> words = _cutChinese->cutWord(line);
-            // 过滤停用词 & 统计词频
+            // 跳过数字/英文 & 过滤停用词 & 统计词频
             for(auto& word:words){
-                if(stop_words.count(word)){
+                if(((word[0] & 0x80) == 0) || stop_words.count(word)){
                     continue;
                 }
                 ++wordCounts[word];
