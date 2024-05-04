@@ -7,7 +7,6 @@ class SplitToolCppJieba::CppJiebaImpl{
 public:
     CppJiebaImpl(Configuration * pconf);
     ~CppJiebaImpl();
-    vector<string> cutAll(const string& sentence);
     vector<string> cutWord(const string& sentence);
 private:
     cppjieba::Jieba * _pjieba = nullptr;
@@ -22,9 +21,6 @@ SplitToolCppJieba::~SplitToolCppJieba(){
         delete _pimpl;
         _pimpl = nullptr;
     }
-}
-vector<string> SplitToolCppJieba::cutAll(const string& sentence) {
-    return _pimpl->cutAll(sentence);
 }
 vector<string> SplitToolCppJieba::cutWord(const string& sentence) {
     return _pimpl->cutWord(sentence);
@@ -47,11 +43,6 @@ SplitToolCppJieba::CppJiebaImpl::~CppJiebaImpl(){
         delete _pjieba;
         _pjieba = nullptr;
     }
-}
-vector<string> SplitToolCppJieba::CppJiebaImpl::cutAll(const string& sentence){
-    vector<string> words;
-    //
-    return words;
 }
 vector<string> SplitToolCppJieba::CppJiebaImpl::cutWord(const string& sentence){
     vector<string> words;
