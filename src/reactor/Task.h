@@ -2,6 +2,7 @@
 #define _TASK_H
 
 #include "TcpConnection.h"
+#include "../online/Dictionary.h"
 
 class Task{
 public:
@@ -10,7 +11,7 @@ public:
     ,_con(con)
     {}
     virtual void taskFunc() const {
-        // 普通任务
+        // 普通任务,回复客户端信息
         _con->sendInLoop(_msg);
     }
 protected:
@@ -25,7 +26,8 @@ public:
     :Task(msg,con)
     {}
     void taskFunc() const override{
-        // 网页查询
+        // 网页查询,调用WebPageQuery类的doQuery函数
+        /* const string& msg = WebPageQuery::doQuery(_msg); */
         _con->sendInLoop(_msg);
     }
 };
@@ -37,8 +39,9 @@ public:
     :Task(msg,con)
     {}
     void taskFunc() const override{
-        // 关键字推送
-        _con->sendInLoop(_msg);
+        // 关键字推送,调用Dictionary类的doQuery函数
+        const string& msg = Dictionary::doQuery(_msg);
+        _con->sendInLoop(msg);
     }
 };
 

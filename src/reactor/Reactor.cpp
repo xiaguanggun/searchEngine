@@ -72,15 +72,17 @@ void Reactor::onNewConn(TcpConnectionPtr con) {
  */
 void Reactor::onMessage(TcpConnectionPtr con) {
     string msg = con->recv();
-    cout << "recv msg = " << msg << "\n";
-    if(msg == "WebQuery"){
+    cout << "recv cmd = " << msg << "\n";
+    if(msg == "WebQuery\n"){
+        msg = con->recv();
         _pool.addTask(shared_ptr<Task>(new WebQueryTask(msg,con)));
     }
-    else if (msg == "KeyWordTask"){
+    else if (msg == "KeyWord\n"){
+        msg = con->recv();
         _pool.addTask(shared_ptr<Task>(new KeyWordTask(msg,con)));
     }
     else{
-        _pool.addTask(shared_ptr<Task>(new Task("Task Msg Error!",con)));
+        _pool.addTask(shared_ptr<Task>(new Task("Task Msg Error!\n",con)));
     }
 }
 
