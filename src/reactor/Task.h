@@ -3,6 +3,7 @@
 
 #include "TcpConnection.h"
 #include "../online/Dictionary.h"
+#include "../online/WebPageQuery.h"
 
 class Task{
 public:
@@ -27,8 +28,8 @@ public:
     {}
     void taskFunc() const override{
         // 网页查询,调用WebPageQuery类的doQuery函数
-        /* const string& msg = WebPageQuery::doQuery(_msg); */
-        _con->sendInLoop(_msg);
+        const string& msg = WebPageQuery::doQuery(_msg);
+        _con->sendInLoop(msg);
     }
 };
 
