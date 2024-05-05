@@ -16,17 +16,13 @@ using std::set;
 using std::priority_queue;
 
 class Configuration;
-class SplitTool;
 class Dictionary {
 public:
     static Dictionary * getInstance();
     static void init(Configuration * pconf);
     static string doQuery(const string& key);
 private: 
-    Dictionary(){
-        // 自动销毁
-        ::atexit(&Dictionary::destory);
-    }
+    Dictionary();
     ~Dictionary(){}
     static void destory();
     /* void queryIndex(); */
@@ -41,5 +37,10 @@ private:
     size_t _pqSize = 10;
     priority_queue<CandidateResult> _result;
 };
+
+inline Dictionary::Dictionary(){
+    // 自动销毁
+    ::atexit(&Dictionary::destory);
+}
 
 #endif //_DICTIONARY_H

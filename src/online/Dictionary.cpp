@@ -39,10 +39,11 @@ void Dictionary::init(Configuration * pconf){
         LogError("open dict_eng_idx failed");
         return;
     }
+    unordered_map<string,set<size_t>>& indexEng = pdict->_indexEng;
     while(getline(ifs,line)){
         istringstream iss(line);
         iss >> chars;
-        pdict->_indexEng[chars].insert(std::istream_iterator<size_t>(iss),std::istream_iterator<size_t>());
+        indexEng[chars].insert(std::istream_iterator<size_t>(iss),std::istream_iterator<size_t>());
     }
     ifs.close();
     ifs.open(configs["dict_zh_idx"]);
@@ -50,10 +51,11 @@ void Dictionary::init(Configuration * pconf){
         LogError("open dict_zh_idx failed");
         return;
     }
+    unordered_map<string,set<size_t>>& indexZh = pdict->_indexZh;
     while(getline(ifs,line)){
         istringstream iss(line);
         iss >> chars;
-        pdict->_indexZh[chars].insert(std::istream_iterator<size_t>(iss),std::istream_iterator<size_t>());
+        indexZh[chars].insert(std::istream_iterator<size_t>(iss),std::istream_iterator<size_t>());
     }
     ifs.close();
     ifs.open(configs["dict_eng"]);
@@ -61,9 +63,10 @@ void Dictionary::init(Configuration * pconf){
         LogError("open dict_eng failed");
         return;
     }
+    vector<pair<string,size_t>>& dictEng = pdict->_dictEng;
     while(ifs){
         ifs >> chars >> tf;
-        pdict->_dictEng.emplace_back(chars,tf);
+        dictEng.emplace_back(chars,tf);
     }
     ifs.close();
     ifs.open(configs["dict_zh"]);
@@ -71,9 +74,10 @@ void Dictionary::init(Configuration * pconf){
         LogError("open dict_zh failed");
         return;
     }
+    vector<pair<string,size_t>>& dictZh = pdict->_dictZh;
     while(ifs){
         ifs >> chars >> tf;
-        pdict->_dictZh.emplace_back(chars,tf);
+        dictZh.emplace_back(chars,tf);
     }
     ifs.close();
     //test
@@ -89,60 +93,70 @@ void Dictionary::init(Configuration * pconf){
     //}
 }
 
-// 成员函数
+// 查询函数doQuery
 string Dictionary::doQuery(const string& key) {
     Dictionary * pdict = getInstance();
+    /* const unordered_set<string>& stopWords = Configuration::getStopWords(); // 停用词 */
+    unordered_map<string,set<size_t>>& indexEng = pdict->_indexEng;
+    unordered_map<string,set<size_t>>& indexZh = pdict->_indexZh;
+    const vector<pair<string,size_t>>& dictEng = pdict->_dictEng;
+    const vector<pair<string,size_t>>& dictZh = pdict->_dictZh;
+    priority_queue<CandidateResult>& result = pdict->_result;
     // 切分字符
-    vector<string> chars = pdict->_cutChar.cutWord(key);
+    const vector<string>& chars = pdict->_cutChar.cutWord(key);
     // 查索引获取单词下标集合 & 去重
     set<size_t> engSet,zhSet; // 去重后的set
     for(auto & ch:chars){
+        /* if(stopWords.count(ch)){ */
+        /*     continue; // 停用词跳过 */
+        /* } */
         if((ch[0] & 0x80) == 0){
             // 英文
-            set<size_t>& temp = pdict->_indexEng[ch];
+            set<size_t>& temp = indexEng[ch];
             engSet.insert(temp.begin(),temp.end());
         }
         else{
             // 中文
-            set<size_t>& temp = pdict->_indexZh[ch];
+            set<size_t>& temp = indexZh[ch];
             zhSet.insert(temp.begin(),temp.end());
         }
     }
     // 获取候选词 & 计算最短编辑距离 & 存入优先级队列
     // 优先级队列改为小根堆(从小到大),当size超过_pqSize时就pop
+    size_t pqSize = pdict->_pqSize;
     for(auto idx:engSet){
-        auto & word_pair = pdict->_dictEng[idx];
-        /* if(pdict->_result.size() == pdict->_pqSize){ */
-        /*     pdict->_result.pop(); */
+        auto & word_pair = dictEng[idx];
+        /* if(result.size() == pqSize){ */
+        /*     result.pop(); */
         /* } */
-        pdict->_result.emplace(word_pair.first,word_pair.second,editDistance(word_pair.first,key));
+        result.emplace(word_pair.first,word_pair.second,editDistance(word_pair.first,key));
     }
     for(auto idx:zhSet){
-        auto & word_pair = pdict->_dictZh[idx];
-        /* if(pdict->_result.size() == pdict->_pqSize){ */
-        /*     pdict->_result.pop(); */
+        auto & word_pair = dictZh[idx];
+        /* if(result.size() == pqSize){ */
+        /*     result.pop(); */
         /* } */
-        pdict->_result.emplace(word_pair.first,word_pair.second,editDistance(word_pair.first,key));
+        result.emplace(word_pair.first,word_pair.second,editDistance(word_pair.first,key));
     }
     // 返回优先级队列的倒序内容(从大到小)
     /* vector<string> temp; */
-    /* for(size_t i = 0; i < pdict->_result.size(); i++){ */
-    /*     temp.emplace_back(pdict->_result.top()._word); */
-    /*     pdict->_result.pop(); */
+    /* for(size_t i = 0; i < result.size(); i++){ */
+    /*     temp.emplace_back(result.top()._word); */
+    /*     result.pop(); */
     /* } */
     /* return string(temp.rbegin(),temp.rend()); */
-    string result;
+    string queryResult;
     /* for(auto it = temp.rbegin(); it != temp.rend(); ++it){ */
-    /*     result += *it; */
-    /*     result += " "; */
+    /*     queryResult += *it; */
+    /*     queryResult += " "; */
     /* } */
-    for(size_t i = 0; i < pdict->_pqSize && !pdict->_result.empty(); ++i){
-        result += pdict->_result.top()._word + " ";
-        pdict->_result.pop();
+    for(size_t i = 0; i < pqSize && !result.empty(); ++i){
+        queryResult += result.top()._word + " ";
+        result.pop();
     }
     priority_queue<CandidateResult> temp;
-    pdict->_result.swap(temp);
-    return result + "\n";
+    result.swap(temp);
+    return queryResult + "\n";
 }
 
 // 私有辅助函数
