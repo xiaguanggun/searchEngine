@@ -40,7 +40,8 @@ Configuration::Configuration(){
         _stopWords.emplace(key);
     }
     ifs.close();
-    // 停用词加入英文空格
+    // 停用词加入英文' ' 和 '\n'
     _stopWords.emplace(" ");
+    _stopWords.emplace("\n");
 }
 

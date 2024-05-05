@@ -8,15 +8,16 @@ using std::map;
 
 class WebPage {
     friend class PageLibPreprocessor;
+    friend class WebPageQuery;
 public:
-    WebPage(const string& title,const string& link,
-            const string& content,uint64_t simhash);
+    WebPage(const string& title,
+            const string& link,
+            const string& content);
     string& getDoc();
 private: 
     string _title;
     string _link;
     string _content;
-    uint64_t _simhash;
 };
 
 #endif //_WEBPAGE_H
