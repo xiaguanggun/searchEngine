@@ -42,17 +42,52 @@ vector<string> FileProcessor::process(const string& fileName) {
             continue;
         }
         description = temp->GetText();
+        // 正则表达式处理content
+        std::regex reg("<[^>]*>");
+        description = regex_replace(description,reg,"");
+        // 检查处理后是否为空,为空则跳到下一个
+        if(description.size() == 0){
+            pItemNode = pItemNode->NextSiblingElement("item");
+            continue;
+        }
+#if 0
+        // 替换"<"
+        size_t pos = 0;
+        while ((pos = description.find("<", pos)) != std::string::npos) {
+            std::cout << "替换<\n";
+            description.replace(pos, 1, "〈");
+            pos += 3; // 移动到下一个位置，避免替换后死循环
+        }
+        // 替换">"
+        pos = 0;
+        while ((pos = description.find(">", pos)) != std::string::npos) {
+            std::cout << "替换>\n";
+            description.replace(pos, 1, "〉");
+            pos += 3; // 移动到下一个位置，避免替换后死循环
+        }
+#endif
+        // 后续正常处理
         temp = pItemNode->FirstChildElement("title");
         if(temp != nullptr){
             title = temp->GetText();
+            title = regex_replace(title,reg,""); // 去除可能的<>内容
+            // 替换"<"
+            size_t pos = 0;
+            while ((pos = title.find("<", pos)) != std::string::npos) {
+                title.replace(pos, 1, "〈");
+                pos += 3; // 移动到下一个位置，避免替换后死循环
+            }
+            // 替换">"
+            pos = 0;
+            while ((pos = title.find(">", pos)) != std::string::npos) {
+                title.replace(pos, 1, "〉");
+                pos += 3; // 移动到下一个位置，避免替换后死循环
+            }
         }
         temp = pItemNode->FirstChildElement("link");
         if(temp != nullptr){
             link = temp->GetText();
         }
-        // 正则表达式处理content
-        std::regex reg("<[^>]*>");
-        description = regex_replace(description,reg,"");
         // 插入vector
         _items.emplace_back(title,link,description);
         // 获取下一个item结点

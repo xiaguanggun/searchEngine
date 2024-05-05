@@ -71,9 +71,12 @@ void WebPageQuery::init(Configuration * pconf){
         ifs1.read(buf,len); // 读取固定长度
         // 处理为xml文档格式
         tinyxml2::XMLDocument doc;
-        tinyxml2::XMLError result = doc.Parse(buf);
-        if (result != tinyxml2::XML_SUCCESS) {
+        /* tinyxml2::XMLError result = doc.Parse(buf); */
+        doc.Parse(buf);
+        /* if (result != tinyxml2::XML_SUCCESS) { */
+        if (doc.ErrorID()) {
             LogError("Failed to parse XML string");
+            std::cout << doc.ErrorStr() << "\n";
             return;
         }
         string title,link,content;

@@ -13,6 +13,8 @@ using std::unique_ptr;
 
 // 用于simhash计算使用
 const size_t topN = 10;
+// 用于分块处理doc
+const size_t docNum = 100;
 // 用于unordered_set比较
 struct MyCompare{
     bool operator()(int64_t lhs, int64_t rhs)const{
@@ -42,19 +44,104 @@ void PageLibPreprocessor::cutRedundantPage() {
     string webpageLib_old = configs["webpageLib_old"];
     string offsetLib_old = configs["offsetLib_old"];
     // 读取offsetLib_old
-    //ifstream ifs(offsetLib_old);
-    //if(!ifs){
-    //    LogError("open offsetLib_old file failed");
-    //    return;
-    //}
-    //while(ifs){
-    //    size_t docId;
-    //    long pos,len;
-    //    ifs >> docId >> pos >> len;
-    //    _offsetLib.emplace_back(pos,len);
-    //}
-    //ifs.close();
+    ifstream ifs(offsetLib_old);
+    if(!ifs){
+        LogError("open offsetLib_old file failed");
+        return;
+    }
+    while(ifs){
+        size_t docId;
+        long pos,len;
+        ifs >> docId >> pos >> len;
+        _offsetLib.emplace_back(pos,len);
+    }
+    ifs.close();
     // 读取webpageLib_old,根据网页偏移库分块处理
+    ifs.open(webpageLib_old);
+    if(!ifs){
+        LogError("open webpageLib_old file failed");
+        return;
+    }
+    unordered_set<int64_t,std::hash<int64_t>,MyCompare> hashs; // 储存已计算出的simhash,用于去重
+    for(size_t i = 0; i < _offsetLib.size(); i += docNum){
+        ifs.seekg(_offsetLib[i].first); // 偏移位置
+        size_t docsSize = 0; // 获取要读取的大小
+        for(size_t j = 0; j < docNum && i+j < _offsetLib.size()-1; j++){
+            docsSize += _offsetLib[i+j].second;
+        }
+        /* cout << docsSize << "\n"; */
+        char buf[docsSize + 1];
+        buf[docsSize] = 0;
+        ifs.read(buf,docsSize);
+        // 1 解析doc
+        XMLDocument doc;
+        doc.Parse(buf);
+        // 2检查报错
+        if(doc.ErrorID()){
+            LogError("XML Parse failed");
+            cout << doc.ErrorStr() << "\n";
+            return;
+        }
+        // 3处理
+        // 3.1获取第一个doc
+        XMLElement * pItemNode = doc.FirstChildElement("doc");
+        // 3.2循环处理所有doc
+        while(pItemNode){
+            string title,link,content;
+            XMLElement * temp = pItemNode->FirstChildElement("content");
+            // 跳过坏数据
+            if(temp == nullptr){
+                pItemNode = pItemNode->NextSiblingElement("doc");
+                continue;
+            }
+            if(temp->GetText() == nullptr){
+                pItemNode = pItemNode->NextSiblingElement("doc");
+                continue;
+            }
+            content = temp->GetText();
+            // 替换"<"
+            size_t pos = 0;
+            while ((pos = content.find("<", pos)) != std::string::npos) {
+                content.replace(pos, 1, "〈");
+                pos += 3; // 移动到下一个位置，避免替换后死循环
+            }
+            // 替换">"
+            pos = 0;
+            while ((pos = content.find(">", pos)) != std::string::npos) {
+                content.replace(pos, 1, "〉");
+                pos += 3; // 移动到下一个位置，避免替换后死循环
+            }
+            temp = pItemNode->FirstChildElement("title");
+            if(temp != nullptr){
+                title = temp->GetText();
+            }
+            temp = pItemNode->FirstChildElement("link");
+            if(temp != nullptr){
+                link = temp->GetText();
+            }
+            /* cout << title << "\n"; */
+            /* cout << link << "\n"; */
+            /* cout << content << "\n"; */
+            // 计算simhash
+            vector<pair<string ,double>> res; // 关键词序列
+            uint64_t u64 = 0; // simhash指纹
+            _pSimhasher->extract(content, res, topN);
+            _pSimhasher->make(content, topN, u64);
+            // 插入vector
+            if(hashs.count(u64)){
+                // 已存在,去重
+                pItemNode = pItemNode->NextSiblingElement("doc");
+                continue;
+            }
+            hashs.insert(u64);
+            _pageLib.emplace_back(title,link,content);
+            // 获取下一个doc
+            pItemNode = pItemNode->NextSiblingElement("doc");
+            /* cout << _pageLib.size() << "\n\n"; */
+        }
+    }
+    ifs.close();
+#if 0
     // 1加载xml文件
     XMLDocument doc;
     doc.LoadFile(webpageLib_old.c_str());
@@ -89,6 +176,7 @@ void PageLibPreprocessor::cutRedundantPage() {
         // 获取下一个doc
         pItemNode = pItemNode->NextSiblingElement("doc");
     }
+#endif
 }
 
 // 构建倒排索引

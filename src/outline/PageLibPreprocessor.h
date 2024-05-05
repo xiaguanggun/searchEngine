@@ -29,7 +29,7 @@ private:
     SplitTool* _pWordCutter;
     unique_ptr<simhash::Simhasher> _pSimhasher; // 自己创建Simhasher,自己销毁
     vector<WebPage> _pageLib;
-    //vector<pair<long,long>> _offsetLib; // 根据old网页偏移库分块处理old网页库
+    vector<pair<long,long>> _offsetLib; // 根据old网页偏移库分块处理old网页库
     unordered_map<string,map<size_t,double>> _invertIndexLib;
 };
 
