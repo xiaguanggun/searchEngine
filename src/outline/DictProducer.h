@@ -28,12 +28,12 @@ private:
     vector<string> _files;
     vector<pair<string,size_t>> _dict;
     unordered_map<string,set<size_t>> _index;
-    SplitTool* _cutChar;
-    SplitTool* _cutChinese;
+    SplitTool* _pcutChar;
+    SplitTool* _pcutChinese;
 };
 
 inline void DictProducer::buildDict(){
-    if(_cutChinese == nullptr){
+    if(_pcutChinese == nullptr){
         buildEnDict();
     }else{
         buildCnDict();

@@ -10,13 +10,13 @@ using std::ofstream;
 // 构造函数
 DictProducer::DictProducer(const string& dir_eng,SplitTool * pChar)
 :_files(getFiles(dir_eng))
-,_cutChar(pChar)
-,_cutChinese(nullptr)
+,_pcutChar(pChar)
+,_pcutChinese(nullptr)
 {}
 DictProducer::DictProducer(const string& dir_zh,SplitTool * pChar,SplitTool * pZh)
 :_files(getFiles(dir_zh))
-,_cutChar(pChar)
-,_cutChinese(pZh)
+,_pcutChar(pChar)
+,_pcutChinese(pZh)
 {}
 vector<string> DictProducer::getFiles(const string& dir){
     DirScanner scanner;
@@ -27,7 +27,7 @@ vector<string> DictProducer::getFiles(const string& dir){
 void DictProducer::createIndex() {
     // 遍历_dict & 切分字符 & 构造索引
     for(size_t i = 0; i < _dict.size(); ++i){
-        vector<string> chars = _cutChar->cutWord(_dict[i].first);
+        vector<string> chars = _pcutChar->cutWord(_dict[i].first);
         for(auto& ch:chars){
             _index[ch].insert(i);
         }
@@ -37,7 +37,7 @@ void DictProducer::createIndex() {
 void DictProducer::store() {
     // 根据_cutChinese指针是否为nullptr决定构造eng/zhDict
     string dict_filename,idx_filename;
-    if(_cutChinese == nullptr){
+    if(_pcutChinese == nullptr){
         dict_filename = Configuration::getConfigMap()["dict_eng"];
         idx_filename = Configuration::getConfigMap()["dict_eng_idx"];
     }
@@ -121,7 +121,7 @@ void DictProducer::buildCnDict() {
         string line;
         while(getline(ifs,line)){
             // 中文分词
-            vector<string> words = _cutChinese->cutWord(line);
+            vector<string> words = _pcutChinese->cutWord(line);
             // 跳过数字/英文 & 过滤停用词 & 统计词频
             for(auto& word:words){
                 if(((word[0] & 0x80) == 0) || stop_words.count(word)){
