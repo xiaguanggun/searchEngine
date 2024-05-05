@@ -85,7 +85,7 @@ void PageLibPreprocessor::cutRedundantPage() {
             continue;
         }
         hashs.insert(u64);
-        _pageLib.emplace_back(title,link,content,u64);
+        _pageLib.emplace_back(title,link,content);
         // 获取下一个doc
         pItemNode = pItemNode->NextSiblingElement("doc");
     }
