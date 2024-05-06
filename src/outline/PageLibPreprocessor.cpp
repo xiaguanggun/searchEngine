@@ -99,14 +99,6 @@ void PageLibPreprocessor::cutRedundantPage() {
                 continue;
             }
             content = temp->GetText();
-#if 1
-            // 替换"<" & ">"
-            for(auto & ch : content){
-                if(ch == '<' || ch == '>'){
-                    ch = '\"';
-                }
-            }
-#endif
 #if 0
             // 替换"<"
             size_t pos = 0;
@@ -129,6 +121,24 @@ void PageLibPreprocessor::cutRedundantPage() {
             if(temp != nullptr){
                 link = temp->GetText();
             }
+#if 1
+            // 替换"<" & ">"
+            for(auto & ch : content){
+                if(ch == '<' || ch == '>'){
+                    ch = '\"';
+                }
+            }
+            for(auto & ch : link){
+                if(ch == '<' || ch == '>'){
+                    ch = '\"';
+                }
+            }
+            for(auto & ch : title){
+                if(ch == '<' || ch == '>'){
+                    ch = '\"';
+                }
+            }
+#endif
             /* cout << title << "\n"; */
             /* cout << link << "\n"; */
             /* cout << content << "\n"; */
