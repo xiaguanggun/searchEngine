@@ -8,19 +8,6 @@ using std::istringstream;
 
 // 静态成员
 WebPageQuery * WebPageQuery::_pInstance = nullptr;
-// 构造析构
-WebPageQuery * WebPageQuery::getInstance(){
-    if(!_pInstance){
-        _pInstance = new WebPageQuery();
-    }
-    return _pInstance;
-}
-void WebPageQuery::destory(){
-    if(_pInstance){
-        delete _pInstance;
-        _pInstance = nullptr;
-    }
-}
 
 // 初始化
 void WebPageQuery::init(Configuration * pconf){
@@ -116,7 +103,9 @@ string WebPageQuery::doQuery(const string& key){
     const vector<WebPage>& pages = pweb->_pages;
     /* const unordered_map<size_t,pair<long,long>>& offsetLib = pweb->_offsetLib; */
     unordered_map<string,map<size_t,double>>& invertIndexLib = pweb->_invertIndexLib;
-    priority_queue<pair<size_t,double>,std::vector<pair<size_t,double>>,CosCompare>& result = pweb->_result; // 存idx & cosSim
+    size_t pqSize = pweb->_pqSize;
+    /* priority_queue<pair<size_t,double>,std::vector<pair<size_t,double>>,CosCompare>& result = pweb->_result; // 存idx & cosSim */
+    priority_queue_t & result = pweb->_result; // 存idx & cosSim
     // 切分字符
     const vector<string>& words = pweb->_cutChinese.cutWord(key);
     /* std::cout << words.size() << "\n"; */
@@ -183,8 +172,7 @@ string WebPageQuery::doQuery(const string& key){
     // 返回结果 json对象
     nlohmann::json queryResults;
     queryResults["WebQuery"] = nlohmann::json::array();
-    while(!result.empty()){
-        /* size_t idx = result.top().first; */
+    for(size_t i = 0; i < pqSize && !result.empty(); ++i){
         const WebPage & page = pages[result.top().first];
         nlohmann::json queryResult;
         queryResult["title"] = page._title;
@@ -193,5 +181,7 @@ string WebPageQuery::doQuery(const string& key){
         queryResults["WebQuery"].push_back(queryResult);
         result.pop();
     }
+    priority_queue_t temp;
+    result.swap(temp); // 清空优先级队列
     return queryResults.dump() + "\n";
 }

@@ -13,22 +13,9 @@ std::size_t length(const std::string &str);
 //3. 中英文通用的最小编辑距离算法
 int editDistance(const std::string & lhs, const std::string &rhs);
 
-
 // 静态成员
 Dictionary * Dictionary::_pInstance = nullptr;
-// 构造析构
-Dictionary * Dictionary::getInstance(){
-    if(!_pInstance){
-        _pInstance = new Dictionary();
-    }
-    return _pInstance;
-}
-void Dictionary::destory(){
-    if(_pInstance){
-        delete _pInstance;
-        _pInstance = nullptr;
-    }
-}
+
 // 初始化
 void Dictionary::init(Configuration * pconf){
     Dictionary * pdict = getInstance();
@@ -81,17 +68,19 @@ void Dictionary::init(Configuration * pconf){
         dictZh.emplace_back(chars,tf);
     }
     ifs.close();
+#if 0
     //test
-    //for(auto & word_pair:pdict->_dictEng){
-    //    std::cout << word_pair.first << " " << word_pair.second << "\n";
-    //}
-    //for(auto & char_pair:pdict->_indexEng){
-    //    std::cout << char_pair.first << " ";
-    //    for(auto & idx:char_pair.second){
-    //        std::cout << idx << " ";
-    //    }
-    //    std::cout << "\n";
-    //}
+    for(auto & word_pair:pdict->_dictEng){
+        std::cout << word_pair.first << " " << word_pair.second << "\n";
+    }
+    for(auto & char_pair:pdict->_indexEng){
+        std::cout << char_pair.first << " ";
+        for(auto & idx:char_pair.second){
+            std::cout << idx << " ";
+        }
+        std::cout << "\n";
+    }
+#endif
 }
 
 // 查询函数doQuery
@@ -102,15 +91,13 @@ string Dictionary::doQuery(const string& key) {
     unordered_map<string,set<size_t>>& indexZh = pdict->_indexZh;
     const vector<pair<string,size_t>>& dictEng = pdict->_dictEng;
     const vector<pair<string,size_t>>& dictZh = pdict->_dictZh;
+    size_t pqSize = pdict->_pqSize;
     priority_queue<CandidateResult>& result = pdict->_result;
     // 切分字符
     const vector<string>& chars = pdict->_cutChar.cutWord(key);
     // 查索引获取单词下标集合 & 去重
     set<size_t> engSet,zhSet; // 去重后的set
     for(auto & ch:chars){
-        /* if(stopWords.count(ch)){ */
-        /*     continue; // 停用词跳过 */
-        /* } */
         if((ch[0] & 0x80) == 0){
             // 英文
             set<size_t>& temp = indexEng[ch];
@@ -124,7 +111,6 @@ string Dictionary::doQuery(const string& key) {
     }
     // 获取候选词 & 计算最短编辑距离 & 存入优先级队列
     // 优先级队列改为小根堆(从小到大),当size超过_pqSize时就pop
-    size_t pqSize = pdict->_pqSize;
     for(auto idx:engSet){
         auto & word_pair = dictEng[idx];
         /* if(result.size() == pqSize){ */
@@ -139,18 +125,20 @@ string Dictionary::doQuery(const string& key) {
         /* } */
         result.emplace(word_pair.first,word_pair.second,editDistance(word_pair.first,key));
     }
+#if 0
     // 返回优先级队列的倒序内容(从大到小)
-    /* vector<string> temp; */
-    /* for(size_t i = 0; i < result.size(); i++){ */
-    /*     temp.emplace_back(result.top()._word); */
-    /*     result.pop(); */
-    /* } */
-    /* return string(temp.rbegin(),temp.rend()); */
-    /* string queryResult; */
-    /* for(auto it = temp.rbegin(); it != temp.rend(); ++it){ */
-    /*     queryResult += *it; */
-    /*     queryResult += " "; */
-    /* } */
+    vector<string> temp;
+    for(size_t i = 0; i < result.size(); i++){
+        temp.emplace_back(result.top()._word);
+        result.pop();
+    }
+    return string(temp.rbegin(),temp.rend());
+    string queryResult;
+    for(auto it = temp.rbegin(); it != temp.rend(); ++it){
+        queryResult += *it;
+        queryResult += " ";
+    }
+#endif
     // 构造json对象
     nlohmann::json queryResult;
     queryResult["KeyWord"] = nlohmann::json::array(); // 数组
@@ -159,20 +147,11 @@ string Dictionary::doQuery(const string& key) {
         result.pop();
     }
     priority_queue<CandidateResult> temp;
-    result.swap(temp);
+    result.swap(temp); // 清空优先级队列
     return queryResult.dump() + "\n";
 }
 
 // 私有辅助函数
-/* void Dictionary::queryIndex() { */
-/*     return; */
-/* } */
-// 计算最小编辑距离
-/* int Dictionary::distance(string candidate) { */
-/*     return 0; */
-/* } */
-
-
 // 本文件使用的函数
 size_t nBytesCode(const char ch)
 {

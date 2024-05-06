@@ -25,8 +25,6 @@ private:
     Dictionary();
     ~Dictionary(){}
     static void destory();
-    /* void queryIndex(); */
-    /* int distance(string candidate); */
 private: 
     static Dictionary * _pInstance;
     SplitToolChar _cutChar;
@@ -38,9 +36,21 @@ private:
     priority_queue<CandidateResult> _result;
 };
 
+// 构造析构
+inline Dictionary * Dictionary::getInstance(){
+    if(!_pInstance){
+        _pInstance = new Dictionary();
+    }
+    return _pInstance;
+}
+inline void Dictionary::destory(){
+    if(_pInstance){
+        delete _pInstance;
+        _pInstance = nullptr;
+    }
+}
 inline Dictionary::Dictionary(){
-    // 自动销毁
-    ::atexit(&Dictionary::destory);
+    ::atexit(&Dictionary::destory); // 自动销毁
 }
 
 #endif //_DICTIONARY_H

@@ -17,7 +17,7 @@ public:
     int _dist;
 };
 
-// 改为小根堆
+// 优先级队列调用
 inline bool operator<(const CandidateResult& lhs, const CandidateResult& rhs){
     if(lhs._dist != rhs._dist){
         return lhs._dist > rhs._dist;
