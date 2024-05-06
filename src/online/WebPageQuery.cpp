@@ -91,20 +91,22 @@ void WebPageQuery::init(Configuration * pconf){
     }
     ifs.close();
     ifs1.close();
+#if 0
     // test
-    //for(auto & word_pair:invertIndexLib){
-    //    std::cout << word_pair.first << " ";
-    //    for(auto & idx_pair:word_pair.second){
-    //        std::cout << idx_pair.first << " " << idx_pair.second << " ";
-    //    }
-    //    std::cout << "\n";
-    //}
-    //for(auto & idx_pos_len:offsetLib){
-    //    std::cout << idx_pos_len.first << " " << idx_pos_len.second.first << " " << idx_pos_len.second.second << "\n";
-    //}
-    //for(auto & page:pages){
-    //    std::cout << page._content << "\n";
-    //}
+    for(auto & word_pair:invertIndexLib){
+        std::cout << word_pair.first << " ";
+        for(auto & idx_pair:word_pair.second){
+            std::cout << idx_pair.first << " " << idx_pair.second << " ";
+        }
+        std::cout << "\n";
+    }
+    for(auto & idx_pos_len:offsetLib){
+        std::cout << idx_pos_len.first << " " << idx_pos_len.second.first << " " << idx_pos_len.second.second << "\n";
+    }
+    for(auto & page:pages){
+        std::cout << page._content << "\n";
+    }
+#endif
 }
 
 // 查询函数doQuery
@@ -117,6 +119,7 @@ string WebPageQuery::doQuery(const string& key){
     priority_queue<pair<size_t,double>,std::vector<pair<size_t,double>>,CosCompare>& result = pweb->_result; // 存idx & cosSim
     // 切分字符
     const vector<string>& words = pweb->_cutChinese.cutWord(key);
+    /* std::cout << words.size() << "\n"; */
     map<string,size_t> wordCounts; // 词频
     // 查索引获取网页下标集合 & 取交集 & 构造文档向量 & 基准向量(使用词频,IDF都一样为log2(1/2))
     map<size_t,double> idx_pairs = invertIndexLib[words[0]]; // 取交集后的map
@@ -138,15 +141,15 @@ string WebPageQuery::doQuery(const string& key){
                                  const pair<size_t,double>& rhs) {
                                   return lhs.first < rhs.first;
                               }); // lambda用于取交集调用
-        //std::cout << "size = " << idx_pairs.size() << "\n";
-        //for(auto & it : idx_pairs){
-        //    std::cout << it.first << " ";
-        //}
-        //std::cout << "\n";
+        /* std::cout << "size = " << idx_pairs.size() << "\n"; */
+        /* for(auto & it : idx_pairs){ */
+        /*     std::cout << it.first << " "; */
+        /* } */
+        /* std::cout << "\n"; */
         // 交集一旦为空则直接返回,未查到结果
         if(idx_pairs.size() == 0){
-            /* std::cout << "no result\n"; */
-            return "";
+            std::cout << "no result\n";
+            return "{\"WebQuery\":[]}\n";
         }
     }
     // 构造基准向量
@@ -179,15 +182,16 @@ string WebPageQuery::doQuery(const string& key){
     }
     // 返回结果 json对象
     nlohmann::json queryResults;
+    queryResults["WebQuery"] = nlohmann::json::array();
     while(!result.empty()){
-        size_t idx = result.top().first;
-        const WebPage & page = pages[idx];
+        /* size_t idx = result.top().first; */
+        const WebPage & page = pages[result.top().first];
         nlohmann::json queryResult;
         queryResult["title"] = page._title;
         queryResult["link"] = page._link;
         queryResult["content"] = page._content;
-        queryResults[std::to_string(idx)] = queryResult;
+        queryResults["WebQuery"].push_back(queryResult);
         result.pop();
     }
-    return queryResults.dump();
+    return queryResults.dump() + "\n";
 }

@@ -1,5 +1,6 @@
 #include <sstream>
 #include <iterator>
+#include <wfrest/json.hpp>
 #include "../shared/Configuration.h"
 #include "Dictionary.h"
 using std::istringstream;
@@ -145,18 +146,21 @@ string Dictionary::doQuery(const string& key) {
     /*     result.pop(); */
     /* } */
     /* return string(temp.rbegin(),temp.rend()); */
-    string queryResult;
+    /* string queryResult; */
     /* for(auto it = temp.rbegin(); it != temp.rend(); ++it){ */
     /*     queryResult += *it; */
     /*     queryResult += " "; */
     /* } */
+    // 构造json对象
+    nlohmann::json queryResult;
+    queryResult["KeyWord"] = nlohmann::json::array(); // 数组
     for(size_t i = 0; i < pqSize && !result.empty(); ++i){
-        queryResult += result.top()._word + " ";
+        queryResult["KeyWord"].push_back(result.top()._word);
         result.pop();
     }
     priority_queue<CandidateResult> temp;
     result.swap(temp);
-    return queryResult + "\n";
+    return queryResult.dump() + "\n";
 }
 
 // 私有辅助函数
