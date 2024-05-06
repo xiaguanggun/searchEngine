@@ -72,17 +72,17 @@ vector<string> FileProcessor::process(const string& fileName) {
             title = temp->GetText();
             title = regex_replace(title,reg,""); // 去除可能的<>内容
             // 替换"<"
-            size_t pos = 0;
-            while ((pos = title.find("<", pos)) != std::string::npos) {
-                title.replace(pos, 1, "〈");
-                pos += 3; // 移动到下一个位置，避免替换后死循环
-            }
+            /* size_t pos = 0; */
+            /* while ((pos = title.find("<", pos)) != std::string::npos) { */
+            /*     title.replace(pos, 1, "〈"); */
+            /*     pos += 3; // 移动到下一个位置，避免替换后死循环 */
+            /* } */
             // 替换">"
-            pos = 0;
-            while ((pos = title.find(">", pos)) != std::string::npos) {
-                title.replace(pos, 1, "〉");
-                pos += 3; // 移动到下一个位置，避免替换后死循环
-            }
+            /* pos = 0; */
+            /* while ((pos = title.find(">", pos)) != std::string::npos) { */
+            /*     title.replace(pos, 1, "〉"); */
+            /*     pos += 3; // 移动到下一个位置，避免替换后死循环 */
+            /* } */
         }
         temp = pItemNode->FirstChildElement("link");
         if(temp != nullptr){
