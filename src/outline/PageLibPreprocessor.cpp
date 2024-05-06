@@ -99,6 +99,15 @@ void PageLibPreprocessor::cutRedundantPage() {
                 continue;
             }
             content = temp->GetText();
+#if 1
+            // 替换"<" & ">"
+            for(auto & ch : content){
+                if(ch == '<' || ch == '>'){
+                    ch = '\"';
+                }
+            }
+#endif
+#if 0
             // 替换"<"
             size_t pos = 0;
             while ((pos = content.find("<", pos)) != std::string::npos) {
@@ -111,6 +120,7 @@ void PageLibPreprocessor::cutRedundantPage() {
                 content.replace(pos, 1, "〉");
                 pos += 3; // 移动到下一个位置，避免替换后死循环
             }
+#endif
             temp = pItemNode->FirstChildElement("title");
             if(temp != nullptr){
                 title = temp->GetText();
