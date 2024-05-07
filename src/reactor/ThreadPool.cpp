@@ -1,6 +1,6 @@
+#include <unistd.h>
 #include "ThreadPool.h"
 #include "Task.h"
-#include <unistd.h>
 
 ThreadPool::ThreadPool(size_t threadNum, size_t qSize)
 :_threadNum(threadNum)
