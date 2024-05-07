@@ -1,6 +1,8 @@
+#include <unistd.h>
 #include "ThreadPool.h"
 #include "Task.h"
-#include <unistd.h>
+
+thread_local size_t _threadId = 0;
 
 ThreadPool::ThreadPool(size_t threadNum, size_t qSize)
 :_threadNum(threadNum)
@@ -13,7 +15,7 @@ ThreadPool::ThreadPool(size_t threadNum, size_t qSize)
 
 void ThreadPool::start() {
     for(size_t i = 0; i < _threadNum; ++i){
-        _threads.emplace_back(new thread(&ThreadPool::doTask,this));
+        _threads.emplace_back(new thread(&ThreadPool::doTask,this,i+1));
     }
 }
 
@@ -37,7 +39,10 @@ void ThreadPool::addTask(shared_ptr<Task> ptask) {
     }
 }
 
-void ThreadPool::doTask() {
+// 子线程入口函数
+void ThreadPool::doTask(size_t threadId) {
+    // 初始化thread_local
+    _threadId = threadId;
     while(!_isExit){
         auto ptask = getTask();
         if(ptask){

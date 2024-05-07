@@ -63,7 +63,8 @@ void Reactor::stop() {
  * @return void
  */
 void Reactor::onNewConn(TcpConnectionPtr con) {
-    cout << con->toString() << " is connecting!\n";
+    /* cout << con->toString() << " is connecting!\n"; */
+    LogInfo(con->toString() + " is connecting!");
 }
 
 /**
@@ -72,14 +73,24 @@ void Reactor::onNewConn(TcpConnectionPtr con) {
  */
 void Reactor::onMessage(TcpConnectionPtr con) {
     string msg = con->recv();
-    cout << "recv cmd = " << msg << "\n";
-    if(msg == "WebQuery\n"){
-        msg = con->recv();
-        _pool.addTask(shared_ptr<Task>(new WebQueryTask(msg,con)));
-    }
-    else if (msg == "KeyWord\n"){
-        msg = con->recv();
+    /* cout << "recv cmd = " << msg << "\n"; */
+    if(msg.size() && msg[0] == '1'){
+        /* msg = con->recv(); */
+        // 去除末尾的换行
+        if(msg.back() == '\n'){
+            msg.resize(msg.size()-1);
+        }
+        LogInfo("recv cmd = KeyWord, msg = " + msg);
         _pool.addTask(shared_ptr<Task>(new KeyWordTask(msg,con)));
+    }
+    else if(msg.size() && msg[0] == '2'){
+        /* msg = con->recv(); */
+        // 去除末尾的换行
+        if(msg.back() == '\n'){
+            msg.resize(msg.size()-1);
+        }
+        LogInfo("recv cmd = WebQuery, msg = " + msg);
+        _pool.addTask(shared_ptr<Task>(new WebQueryTask(msg,con)));
     }
     else{
         _pool.addTask(shared_ptr<Task>(new Task("Task Msg Error!\n",con)));
@@ -92,5 +103,6 @@ void Reactor::onMessage(TcpConnectionPtr con) {
  */
 void Reactor::onClose(TcpConnectionPtr con) {
     cout << con->toString() << " is closed!!!\n";
+    LogInfo(con->toString() + " is closed!!!");
 }
 

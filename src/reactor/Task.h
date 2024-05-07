@@ -4,6 +4,9 @@
 #include "TcpConnection.h"
 #include "../online/Dictionary.h"
 #include "../online/WebPageQuery.h"
+#include "../cache/CacheManager.h"
+
+extern thread_local size_t _threadId;
 
 class Task{
 public:
@@ -27,8 +30,15 @@ public:
     :Task(msg,con)
     {}
     void taskFunc() const override{
-        // 网页查询,调用WebPageQuery类的doQuery函数
-        const string& msg = WebPageQuery::doQuery(_msg);
+        // 网页查询,先查缓存,再调用WebPageQuery类的doQuery函数
+        /* std::cout << _threadId << "\n"; */
+        /* LRUCache & cache = CacheManager::getWebQueryCache(_threadId); */
+        LRUCache & cache = CacheManager::getWebQueryCache(1);
+        string msg = cache.query(_msg);
+        if(msg.size() == 0){
+            msg = WebPageQuery::doQuery(_msg);
+            cache.addRecord(_msg,msg);
+        }
         _con->sendInLoop(msg);
     }
 };
@@ -40,8 +50,15 @@ public:
     :Task(msg,con)
     {}
     void taskFunc() const override{
-        // 关键字推送,调用Dictionary类的doQuery函数
-        const string& msg = Dictionary::doQuery(_msg);
+        // 关键字推送,先查缓存,调用Dictionary类的doQuery函数
+        /* std::cout << _threadId << "\n"; */
+        /* LRUCache & cache = CacheManager::getKeyWordCache(_threadId); */
+        LRUCache & cache = CacheManager::getKeyWordCache(1);
+        string msg = cache.query(_msg);
+        if(msg.size() == 0){
+            msg = Dictionary::doQuery(_msg);
+            cache.addRecord(_msg,msg);
+        }
         _con->sendInLoop(msg);
     }
 };

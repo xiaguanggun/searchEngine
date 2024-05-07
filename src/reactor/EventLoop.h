@@ -12,6 +12,7 @@
 #include <functional>
 #include <mutex>
 
+#include "../cache/TimerManager.h"
 #include "EventFd.h"
 using std::vector;
 using std::map;
@@ -72,6 +73,7 @@ private:
     TcpConnectionCb _onMessageCb;
     TcpConnectionCb _onCloseCb;
     EventFd _eventfd;
+    TimerManager _timerManager;
     mutex _mutex;
     vector<Functor> _pendings;
     

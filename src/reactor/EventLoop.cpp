@@ -30,6 +30,7 @@ EventLoop::EventLoop(Acceptor& acceptor,int timeout)
 ,_isLooping(false)
 ,_acceptor(acceptor)
 ,_eventfd(createEventFd())
+,_timerManager()
 ,_mutex(mutex())
 {
     // sockfd加入监听
@@ -38,6 +39,8 @@ EventLoop::EventLoop(Acceptor& acceptor,int timeout)
     addEpollReadFd(STDIN_FILENO);
     // eventfd加入监听
     addEpollReadFd(_eventfd.fd());
+    // timerfd加入监听
+    addEpollReadFd(_timerManager.fd());
 }
 
 EventLoop::~EventLoop() {
@@ -49,6 +52,7 @@ EventLoop::~EventLoop() {
  */
 void EventLoop::loop() {
     _isLooping = true;
+    _timerManager.start();
     while(_isLooping){
         waitEpollFd();
     }
@@ -59,6 +63,7 @@ void EventLoop::loop() {
  */
 void EventLoop::unloop() {
     _isLooping = false;
+    _timerManager.stop();
 }
 
 /**
@@ -166,6 +171,9 @@ void EventLoop::waitEpollFd() {
         else if(fd == _eventfd.fd()){
             handleRead();
             doPendingFunctors();
+        }
+        else if(fd == _timerManager.fd()){
+            _timerManager.addTask();
         }
         else{
             handleMessage(fd);
