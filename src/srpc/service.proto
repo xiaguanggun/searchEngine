@@ -1,0 +1,18 @@
+syntax="proto3";
+// message == class
+message reqInfo{
+    string key = 1;
+}
+message respInfo{
+    string msg = 1;
+}
+// service == namespace
+// 关键字推荐
+service KeyWord{
+    rpc KeyWord(reqInfo) returns (respInfo) {}
+}
+// 网页查询
+service WebQuery{
+    rpc WebQuery(reqInfo) returns (respInfo) {}
+}
+
