@@ -2,7 +2,6 @@
 #include <fstream>
 #include "../reactor/macro.h"
 #include "../reactor/Reactor.h"
-
 #include "../shared/Configuration.h"
 #include "../shared/Mylogger.h"
 #include "Dictionary.h"
