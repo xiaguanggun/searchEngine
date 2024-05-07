@@ -28,26 +28,32 @@ void CacheManager::updateCache() {
     size_t threadNum = pcache->_threadNum;
     auto & cachesKeyWord = pcache->_cachesKeyWord;
     auto & cachesWebQuery = pcache->_cachesWebQuery;
-    // 收集所有子cache的pendingNodes
-    for(size_t i = 1; i <= threadNum; ++i){
-        cachesKeyWord[i + threadNum]._pendingNodes = cachesKeyWord[i]._pendingNodes;
-        cachesWebQuery[i + threadNum]._pendingNodes = cachesWebQuery[i]._pendingNodes;
+    // 收集所有子cache的pendingNodes,加锁
+    {
+        unique_lock<mutex> autolock(pcache->_mutex);// 自动解锁
+        for(size_t i = 1; i <= threadNum; ++i){
+            cachesKeyWord[i + threadNum]._pendingNodes = cachesKeyWord[i]._pendingNodes;
+            cachesWebQuery[i + threadNum]._pendingNodes = cachesWebQuery[i]._pendingNodes;
+        }
     }
+    sleep(10);
     // 同步到主cache
     for(size_t i = 1; i <= threadNum; ++i){
         cachesKeyWord[0].update(cachesKeyWord[i + threadNum]);
         cachesWebQuery[0].update(cachesWebQuery[i + threadNum]);
     }
-    sleep(10);
     // 拷贝回所有子线程的备份cache
     for(size_t i = 1; i <= threadNum; ++i){
         cachesKeyWord[i + threadNum] = cachesKeyWord[0];
         cachesWebQuery[i + threadNum] = cachesWebQuery[0];
     }
-    // 交换所有子线程的cache和备份cache
-    for(size_t i = 1; i <= threadNum; ++i){
-        std::swap(cachesKeyWord[i],cachesKeyWord[i + threadNum]);
-        std::swap(cachesWebQuery[i],cachesWebQuery[i + threadNum]);
+    // 交换所有子线程的cache和备份cache,加锁
+    {
+        unique_lock<mutex> autolock(pcache->_mutex);// 自动解锁
+        for(size_t i = 1; i <= threadNum; ++i){
+            std::swap(cachesKeyWord[i],cachesKeyWord[i + threadNum]);
+            std::swap(cachesWebQuery[i],cachesWebQuery[i + threadNum]);
+        }
     }
     std::cout << "updateCache finished...\n";
 }

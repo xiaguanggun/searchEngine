@@ -93,7 +93,7 @@ void Reactor::onMessage(TcpConnectionPtr con) {
         _pool.addTask(shared_ptr<Task>(new WebQueryTask(msg,con)));
     }
     else{
-        _pool.addTask(shared_ptr<Task>(new Task("Task Msg Error!\n",con)));
+        _pool.addTask(shared_ptr<Task>(new Task("Task Msg Error!",con)));
     }
 }
 

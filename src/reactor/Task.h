@@ -23,26 +23,6 @@ protected:
     TcpConnectionPtr _con;
 };
 
-class WebQueryTask:public Task
-{
-public:
-    WebQueryTask(const string& msg, const TcpConnectionPtr con)
-    :Task(msg,con)
-    {}
-    void taskFunc() const override{
-        // 网页查询,先查缓存,再调用WebPageQuery类的doQuery函数
-        /* std::cout << _threadId << "\n"; */
-        /* LRUCache & cache = CacheManager::getWebQueryCache(_threadId); */
-        LRUCache & cache = CacheManager::getWebQueryCache(1);
-        string msg = cache.query(_msg);
-        if(msg.size() == 0){
-            msg = WebPageQuery::doQuery(_msg);
-            cache.addRecord(_msg,msg);
-        }
-        _con->sendInLoop(msg);
-    }
-};
-
 class KeyWordTask:public Task
 {
 public:
@@ -53,11 +33,29 @@ public:
         // 关键字推送,先查缓存,调用Dictionary类的doQuery函数
         /* std::cout << _threadId << "\n"; */
         /* LRUCache & cache = CacheManager::getKeyWordCache(_threadId); */
-        LRUCache & cache = CacheManager::getKeyWordCache(1);
-        string msg = cache.query(_msg);
+        string msg = CacheManager::queryKeyWordCache(_threadId,_msg);
         if(msg.size() == 0){
             msg = Dictionary::doQuery(_msg);
-            cache.addRecord(_msg,msg);
+            CacheManager::addKeyWordCache(_threadId,_msg,msg);
+        }
+        _con->sendInLoop(msg);
+    }
+};
+
+class WebQueryTask:public Task
+{
+public:
+    WebQueryTask(const string& msg, const TcpConnectionPtr con)
+    :Task(msg,con)
+    {}
+    void taskFunc() const override{
+        // 网页查询,先查缓存,再调用WebPageQuery类的doQuery函数
+        /* std::cout << _threadId << "\n"; */
+        /* LRUCache & cache = CacheManager::getWebQueryCache(_threadId); */
+        string msg = CacheManager::queryWebQueryCache(_threadId,_msg);
+        if(msg.size() == 0){
+            msg = WebPageQuery::doQuery(_msg);
+            CacheManager::addWebQueryCache(_threadId,_msg,msg);
         }
         _con->sendInLoop(msg);
     }

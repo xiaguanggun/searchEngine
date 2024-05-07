@@ -28,11 +28,16 @@ void LRUCache::prints(){
 
 // 拷贝构造
 LRUCache::LRUCache(const LRUCache & lhs){
+    _capacity = lhs._capacity;
     for(auto & it:lhs._cacheNodes){
         _cacheNodes.emplace_front(it.first,it.second);
         _hashmap[it.first] = _cacheNodes.begin();
     }
 }
+// 移动构造
+/* LRUCache::LRUCache(LRUCache && lhs){ */
+
+/* } */
 // 重载operator=
 LRUCache& LRUCache::operator=(const LRUCache & lhs){
     // 清空自己的内存

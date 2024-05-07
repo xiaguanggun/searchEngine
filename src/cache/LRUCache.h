@@ -19,7 +19,10 @@ public:
     LRUCache(size_t capacity = 10);
     LRUCache(const string& filename,size_t capacity = 10);
     LRUCache(const LRUCache & lhs); // 拷贝构造
-    LRUCache& operator=(const LRUCache & lhs); // 拷贝函数
+    /* LRUCache(LRUCache && lhs); // 移动构造 */
+    LRUCache& operator=(const LRUCache & lhs); // 赋值函数
+    /* LRUCache& operator=(const LRUCache && lhs); // 移动赋值函数 */
+
     JsonString query(const string& key); // 查询
     void addRecord(const string& key, const JsonString & jsonStr); // 插入结点
     void update(const LRUCache & cache); // 同步pendings到传入的cache
