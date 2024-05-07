@@ -15,11 +15,11 @@ CACHESRCS:=$(wildcard $(CACHE)/*.cpp)
 CACHEOBJS:=$(patsubst $(CACHE)/%.cpp,$(CACHE)/%.o,$(CACHESRCS))
 CC:=g++
 # 目标 : 依赖
-$(SERVER):$(filter-out keyword.o webquery.o,$(OBJS)) $(SHAREDOBJS) $(REACTOROBJS) $(CACHEOBJS)
+$(SERVER):$(OBJS) $(SHAREDOBJS) $(REACTOROBJS) $(CACHEOBJS)
 	$(CC) $^ -o $@ $(LIBS) -g
-$(KEYWORD):$(filter-out server.o webquery.o,$(OBJS)) $(SHAREDOBJS) $(REACTOROBJS) $(CACHEOBJS)
+$(KEYWORD):$(OBJS) $(SHAREDOBJS) $(REACTOROBJS) $(CACHEOBJS)
 	$(CC) $^ -o $@ $(LIBS) -g
-$(WEBQUERY):$(filter-out keyword.o server.o,$(OBJS)) $(SHAREDOBJS) $(REACTOROBJS) $(CACHEOBJS)
+$(WEBQUERY):$(OBJS) $(SHAREDOBJS) $(REACTOROBJS) $(CACHEOBJS)
 	$(CC) $^ -o $@ $(LIBS) -g
 %.o:%.cpp
 	$(CC) -c $^ -o $@ -g
