@@ -17,7 +17,6 @@ class Task;
 class ThreadPool {
 public: 
     ThreadPool(size_t threadNum, size_t qSize);
-
     void start();
     void stop();
     void addTask(shared_ptr<Task> ptask);

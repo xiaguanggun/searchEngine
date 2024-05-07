@@ -20,19 +20,6 @@ protected:
     TcpConnectionPtr _con;
 };
 
-class WebQueryTask:public Task
-{
-public:
-    WebQueryTask(const string& msg, const TcpConnectionPtr con)
-    :Task(msg,con)
-    {}
-    void taskFunc() const override{
-        // 网页查询,调用WebPageQuery类的doQuery函数
-        const string& msg = WebPageQuery::doQuery(_msg);
-        _con->sendInLoop(msg);
-    }
-};
-
 class KeyWordTask:public Task
 {
 public:
@@ -42,6 +29,19 @@ public:
     void taskFunc() const override{
         // 关键字推送,调用Dictionary类的doQuery函数
         const string& msg = Dictionary::doQuery(_msg);
+        _con->sendInLoop(msg);
+    }
+};
+
+class WebQueryTask:public Task
+{
+public:
+    WebQueryTask(const string& msg, const TcpConnectionPtr con)
+    :Task(msg,con)
+    {}
+    void taskFunc() const override{
+        // 网页查询,调用WebPageQuery类的doQuery函数
+        const string& msg = WebPageQuery::doQuery(_msg);
         _con->sendInLoop(msg);
     }
 };

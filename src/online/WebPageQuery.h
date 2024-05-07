@@ -21,7 +21,7 @@ class WebPageQuery {
     using priority_queue_t = priority_queue<pair<size_t,double>,std::vector<pair<size_t,double>>,CosCompare>;
 public: 
     static WebPageQuery * getInstance();
-    static void init(Configuration * pconf);
+    static void init();
     static string doQuery(const string& key);
 private:
     WebPageQuery();

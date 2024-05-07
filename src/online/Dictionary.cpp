@@ -17,9 +17,9 @@ int editDistance(const std::string & lhs, const std::string &rhs);
 Dictionary * Dictionary::_pInstance = nullptr;
 
 // 初始化
-void Dictionary::init(Configuration * pconf){
+void Dictionary::init(){
     Dictionary * pdict = getInstance();
-    auto & configs = pconf->getConfigMap();
+    auto & configs = Configuration::getConfigMap();
     string line,chars; // 获取一行内容 & 单个字符或单词
     size_t tf; // 获取词频
     ifstream ifs(configs["dict_eng_idx"]);
@@ -148,7 +148,7 @@ string Dictionary::doQuery(const string& key) {
     }
     priority_queue<CandidateResult> temp;
     result.swap(temp); // 清空优先级队列
-    return queryResult.dump() + "\n";
+    return queryResult.dump();
 }
 
 // 私有辅助函数

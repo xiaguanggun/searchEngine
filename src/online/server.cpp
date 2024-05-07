@@ -33,8 +33,8 @@ int main()
     /* cout << threadNum << qSize << ip << port << timeout << "\n"; */
     ifs.close();
     // 初始化dict & webpage
-    Dictionary::init(Configuration::getInstance());
-    WebPageQuery::init(Configuration::getInstance());
+    Dictionary::init();
+    WebPageQuery::init();
     // 启动服务器
     Reactor server(threadNum,qSize,ip,port,timeout);
     server.start();

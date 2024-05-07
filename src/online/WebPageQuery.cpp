@@ -10,9 +10,9 @@ using std::istringstream;
 WebPageQuery * WebPageQuery::_pInstance = nullptr;
 
 // 初始化
-void WebPageQuery::init(Configuration * pconf){
+void WebPageQuery::init(){
     WebPageQuery * pweb = getInstance();
-    auto & configs = pconf->getConfigMap();
+    auto & configs = Configuration::getConfigMap();
     string line,words; // 获取一行内容 & 单词
     size_t idx; // 获取索引
     double w; // 获取权重
@@ -130,15 +130,10 @@ string WebPageQuery::doQuery(const string& key){
                                  const pair<size_t,double>& rhs) {
                                   return lhs.first < rhs.first;
                               }); // lambda用于取交集调用
-        /* std::cout << "size = " << idx_pairs.size() << "\n"; */
-        /* for(auto & it : idx_pairs){ */
-        /*     std::cout << it.first << " "; */
-        /* } */
-        /* std::cout << "\n"; */
         // 交集一旦为空则直接返回,未查到结果
         if(idx_pairs.size() == 0){
-            std::cout << "no result\n";
-            return "{\"WebQuery\":[]}\n";
+            /* std::cout << "no result\n"; */
+            return "{\"WebQuery\":[]}";
         }
     }
     // 构造基准向量
@@ -183,5 +178,5 @@ string WebPageQuery::doQuery(const string& key){
     }
     priority_queue_t temp;
     result.swap(temp); // 清空优先级队列
-    return queryResults.dump() + "\n";
+    return queryResults.dump();
 }

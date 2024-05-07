@@ -36,7 +36,8 @@ TcpConnection::TcpConnection(int fd,EventLoop * loop)
  * @return void
  */
 void TcpConnection::send(const string& msg) {
-    _sockIO.writen(msg.c_str(),msg.size());
+    string temp = msg + "\n";
+    _sockIO.writen(temp.c_str(),temp.size());
 }
 
 /**
