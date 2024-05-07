@@ -102,7 +102,7 @@ void Reactor::onMessage(TcpConnectionPtr con) {
  * @return void
  */
 void Reactor::onClose(TcpConnectionPtr con) {
-    cout << con->toString() << " is closed!!!\n";
+    /* cout << con->toString() << " is closed!!!\n"; */
     LogInfo(con->toString() + " is closed!!!");
 }
 
