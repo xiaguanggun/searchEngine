@@ -20,7 +20,7 @@ public:
     void start();
     void stop();
     void addTask(shared_ptr<Task> ptask);
-    void doTask();
+    void doTask(size_t threadId);
 private:
     shared_ptr<Task> getTask();
 private: 

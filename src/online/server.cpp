@@ -2,6 +2,7 @@
 #include <fstream>
 #include "../reactor/macro.h"
 #include "../reactor/Reactor.h"
+#include "../cache/CacheManager.h"
 #include "../shared/Configuration.h"
 #include "../shared/Mylogger.h"
 #include "Dictionary.h"
@@ -34,6 +35,8 @@ int main()
     // 初始化dict & webpage
     Dictionary::init();
     WebPageQuery::init();
+    // 初始化缓存
+    CacheManager::init(threadNum);
     // 启动服务器
     Reactor server(threadNum,qSize,ip,port,timeout);
     server.start();
