@@ -19,7 +19,7 @@ class Configuration;
 class Dictionary {
 public:
     static Dictionary * getInstance();
-    static void init(Configuration * pconf);
+    static void init();
     static string doQuery(const string& key);
 private: 
     Dictionary();
