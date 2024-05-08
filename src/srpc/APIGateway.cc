@@ -71,7 +71,9 @@ void APIGateway::KeyWordSrpc(const HttpReq *req, HttpResp * resp, WFHttpTask *ht
     /* } */ 
     /* string key = form.begin()->second.second; */
     nlohmann::json json = nlohmann::json::parse(req->body());
-    string key = json["key"];
+    cout << req->body() << "\n";
+    cout << json.dump() << "\n";
+    string key = json["keyword"];
     cout << key << "\n";
     // 4.rpc调用
 	KeyWord::SRPCClient client(ip.c_str(), port);
@@ -136,7 +138,9 @@ void APIGateway::WebQuerySrpc(const HttpReq *req, HttpResp * resp, WFHttpTask *h
     /* } */ 
     /* string key = form.begin()->second.second; */
     nlohmann::json json = nlohmann::json::parse(req->body());
-    string key = json["key"];
+    cout << req->body() << "\n";
+    cout << json.dump() << "\n";
+    string key = json["keyword"];
     cout << key << "\n";
     // 4.rpc调用
 	WebQuery::SRPCClient client(ip.c_str(), port);

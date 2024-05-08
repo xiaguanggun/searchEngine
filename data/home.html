@@ -87,130 +87,107 @@
             <!-- 搜索结果将动态添加到这里 -->
         </div>
     </div>
+<script>
+    function debounce(func, wait) {
+        let timeout;
+        return function() {
+            const context = this, args = arguments;
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(context, args), wait);
+        };
+    }
 
-    <script>
-        document.getElementById('search-input').addEventListener('input', function(event) {
-            var keyword = event.target.value.trim();
-            if (keyword !== '') {
-                // 模拟获取关键词推送
-                var keywordSuggestionsDiv = document.getElementById('keyword-suggestions');
-                keywordSuggestionsDiv.innerHTML = ''; // 清空之前的推送
-                // 发送获取关键词推送的请求
-                fetch('/KeyWord', {
-                    method: 'POST',
-                    body: JSON.stringify({ keyword: searchInput }), // 这里的searchInput是搜索框中的输入内容
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                })
-                .then(function(response) {
-                    if (response.ok) {
-                        return response.json();
-                    }
-                    throw new Error('Network response was not ok.');
-                })
-                .then(function(data) {
-                    // 处理返回的关键词数据
-                    displayKeywordSuggestions(data);
-                })
-                .catch(function(error) {
-                    console.error('There was a problem with your fetch operation:', error);
-                });
-                var fakeKeywords = ['Keyword 1', 'Keyword 2', 'Keyword 3']; // 模拟的关键词推送
-                fakeKeywords.forEach(function(fakeKeyword) {
-                    var keywordSuggestion = document.createElement('div');
-                    keywordSuggestion.className = 'keyword-suggestion';
-                    keywordSuggestion.textContent = fakeKeyword;
-                    keywordSuggestion.addEventListener('click', function() {
-                        document.getElementById('search-input').value = fakeKeyword;
-                        keywordSuggestionsDiv.style.display = 'none';
-                    });
-                    keywordSuggestionsDiv.appendChild(keywordSuggestion);
-                });
-                keywordSuggestionsDiv.style.display = 'block'; // 显示关键词推送
-            } else {
-                document.getElementById('keyword-suggestions').style.display = 'none'; // 隐藏关键词推送
-            }
-        });
-
-        document.getElementById('search-form').addEventListener('submit', function(event) {
-            event.preventDefault(); // 阻止表单默认提交行为
-
-            var searchInput = document.getElementById('search-input').value;
-            if (searchInput.trim() !== '') {
-                // 这里可以编写发送搜索请求的代码，这里只是简单地展示搜索结果
-                // 发送网页查询的请求
-                fetch('/WebQuery', {
-                    method: 'POST',
-                    body: JSON.stringify({ keyword: searchInput }),
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                })
-                .then(function(response) {
-                    if (response.ok) {
-                        return response.json();
-                    }
-                    throw new Error('Network response was not ok.');
-                })
-                .then(function(data) {
-                    // 处理返回的搜索结果
-                    displaySearchResults(data);
-                })
-                .catch(function(error) {
-                    console.error('There was a problem with your fetch operation:', error);
-                });
-            }
-        });
-        // 添加一个新的函数来处理关键字推荐的显示
-        function displayKeywordSuggestions(data) {
-            var keywordSuggestionsDiv = document.getElementById('keyword-suggestions');
-            keywordSuggestionsDiv.innerHTML = ''; // 清空之前的推送
-        
-            data.forEach(function(keyword) {
-                var keywordSuggestion = document.createElement('div');
-                keywordSuggestion.className = 'keyword-suggestion';
-                keywordSuggestion.textContent = keyword;
-                keywordSuggestion.addEventListener('click', function() {
-                    document.getElementById('search-input').value = keyword;
-                    keywordSuggestionsDiv.style.display = 'none';
-                });
-                keywordSuggestionsDiv.appendChild(keywordSuggestion);
+    const handleInput = debounce(function(event) {
+        const keyword = event.target.value.trim();
+        const keywordSuggestionsDiv = document.getElementById('keyword-suggestions');
+        if (keyword !== '') {
+            fetch('/KeyWord', {
+                method: 'POST',
+                body: JSON.stringify({ keyword: keyword }),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.ok ? response.json() : Promise.reject('Failed to load keyword suggestions'))
+            .then(displayKeywordSuggestions)
+            .catch(error => {
+                console.error('Error:', error);
+                keywordSuggestionsDiv.innerHTML = '<div style="padding: 10px; color: red;">Error loading suggestions.</div>';
             });
-            keywordSuggestionsDiv.style.display = 'block'; // 显示关键词推送
+        } else {
+            keywordSuggestionsDiv.style.display = 'none';
         }
-        // 添加一个新的函数来处理搜索结果的显示
-        function displaySearchResults(data) {
-            var searchResultsDiv = document.getElementById('search-results');
-            searchResultsDiv.innerHTML = ''; // 清空搜索结果区域
-        
-            // 循环遍历搜索结果数据并动态创建搜索结果元素
-            data.forEach(function(result) {
-                var searchResultItem = document.createElement('div');
-                searchResultItem.className = 'search-result-item';
-        
-                var titleElement = document.createElement('div');
-                titleElement.className = 'search-result-title';
-                titleElement.textContent = result.title;
-        
-                var linkElement = document.createElement('a');
-                linkElement.className = 'search-result-link';
-                linkElement.href = result.link;
-                linkElement.textContent = result.link;
-                linkElement.target = "_blank";
-        
-                var contentElement = document.createElement('div');
-                contentElement.className = 'search-result-content';
-                contentElement.textContent = result.content;
-        
-                searchResultItem.appendChild(titleElement);
-                searchResultItem.appendChild(linkElement);
-                searchResultItem.appendChild(contentElement);
-        
-                searchResultsDiv.appendChild(searchResultItem);
+    }, 250);
+
+    document.getElementById('search-input').addEventListener('input', handleInput);
+
+    document.getElementById('search-form').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const searchInput = document.getElementById('search-input').value.trim();
+        if (searchInput) {
+            fetch('/WebQuery', {
+                method: 'POST',
+                body: JSON.stringify({ keyword: searchInput }),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.ok ? response.json() : Promise.reject('Failed to fetch search results'))
+            .then(displaySearchResults)
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('search-results').innerHTML = '<div style="padding: 10px; color: red;">Error fetching results.</div>';
             });
         }
-    </script>
+    });
+
+    function displayKeywordSuggestions(data) {
+        const keywordSuggestionsDiv = document.getElementById('keyword-suggestions');
+        keywordSuggestionsDiv.innerHTML = '';
+        data.forEach(keyword => {
+            const keywordSuggestion = document.createElement('div');
+            keywordSuggestion.className = 'keyword-suggestion';
+            keywordSuggestion.textContent = keyword;
+            keywordSuggestion.addEventListener('click', () => {
+                document.getElementById('search-input').value = keyword;
+                keywordSuggestionsDiv.style.display = 'none';
+                document.getElementById('search-form').dispatchEvent(new Event('submit'));
+            });
+            keywordSuggestionsDiv.appendChild(keywordSuggestion);
+        });
+        keywordSuggestionsDiv.style.display = 'block';
+    }
+
+    function displaySearchResults(data) {
+        const searchResultsDiv = document.getElementById('search-results');
+        searchResultsDiv.innerHTML = '';
+        data.forEach(result => {
+            const searchResultItem = document.createElement('div');
+            searchResultItem.className = 'search-result-item';
+
+            const titleElement = document.createElement('div');
+            titleElement.className = 'search-result-title';
+            titleElement.textContent = result.title;
+
+            const linkElement = document.createElement('a');
+            linkElement.className = 'search-result-link';
+            linkElement.href = result.link;
+            linkElement.textContent = result.link;
+            linkElement.target = "_blank";
+
+            const contentElement = document.createElement('div');
+            contentElement.className = 'search-result-content';
+            contentElement.textContent = result.content;
+
+            searchResultItem.appendChild(titleElement);
+            searchResultItem.appendChild(linkElement);
+            searchResultItem.appendChild(contentElement);
+
+            searchResultsDiv.appendChild(searchResultItem);
+        });
+    }
+</script>
+
 </body>
 </html>
 
