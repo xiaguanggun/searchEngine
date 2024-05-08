@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>搜索结果</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        #container {
+            max-width: 800px;
+            margin: 50px auto;
+            text-align: center;
+        }
+
+        #search-form {
+            margin-bottom: 20px;
+        }
+
+        #search-input {
+            width: 60%;
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        #search-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #3385ff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+
+        #search-results {
+            text-align: left;
+        }
+
+        .search-result-item {
+            margin-bottom: 10px;
+        }
+
+        .search-result-title {
+            font-weight: bold;
+        }
+
+        .search-result-link {
+            color: #3385ff;
+            text-decoration: none;
+        }
+
+        .search-result-content {
+            color: #666;
+        }
+
+        #keyword-suggestions {
+            position: absolute;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            z-index: 1000;
+            width: 60%;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .keyword-suggestion {
+            padding: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <form id="search-form">
+            <div style="position: relative;">
+                <input type="text" id="search-input" placeholder="请输入搜索内容">
+                <div id="keyword-suggestions"></div>
+            </div>
+            <button type="submit" id="search-button">搜索</button>
+        </form>
+        <div id="search-results">
+            <!-- 搜索结果将动态添加到这里 -->
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('search-input').addEventListener('input', function(event) {
+            var keyword = event.target.value.trim();
+            if (keyword !== '') {
+                // 模拟获取关键词推送
+                var keywordSuggestionsDiv = document.getElementById('keyword-suggestions');
+                keywordSuggestionsDiv.innerHTML = ''; // 清空之前的推送
+                // 发送获取关键词推送的请求
+                fetch('/KeyWord', {
+                    method: 'POST',
+                    body: JSON.stringify({ keyword: searchInput }), // 这里的searchInput是搜索框中的输入内容
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(function(response) {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                    throw new Error('Network response was not ok.');
+                })
+                .then(function(data) {
+                    // 处理返回的关键词数据
+                    displayKeywordSuggestions(data);
+                })
+                .catch(function(error) {
+                    console.error('There was a problem with your fetch operation:', error);
+                });
+                var fakeKeywords = ['Keyword 1', 'Keyword 2', 'Keyword 3']; // 模拟的关键词推送
+                fakeKeywords.forEach(function(fakeKeyword) {
+                    var keywordSuggestion = document.createElement('div');
+                    keywordSuggestion.className = 'keyword-suggestion';
+                    keywordSuggestion.textContent = fakeKeyword;
+                    keywordSuggestion.addEventListener('click', function() {
+                        document.getElementById('search-input').value = fakeKeyword;
+                        keywordSuggestionsDiv.style.display = 'none';
+                    });
+                    keywordSuggestionsDiv.appendChild(keywordSuggestion);
+                });
+                keywordSuggestionsDiv.style.display = 'block'; // 显示关键词推送
+            } else {
+                document.getElementById('keyword-suggestions').style.display = 'none'; // 隐藏关键词推送
+            }
+        });
+
+        document.getElementById('search-form').addEventListener('submit', function(event) {
+            event.preventDefault(); // 阻止表单默认提交行为
+
+            var searchInput = document.getElementById('search-input').value;
+            if (searchInput.trim() !== '') {
+                // 这里可以编写发送搜索请求的代码，这里只是简单地展示搜索结果
+                // 发送网页查询的请求
+                fetch('/WebQuery', {
+                    method: 'POST',
+                    body: JSON.stringify({ keyword: searchInput }),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(function(response) {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                    throw new Error('Network response was not ok.');
+                })
+                .then(function(data) {
+                    // 处理返回的搜索结果
+                    displaySearchResults(data);
+                })
+                .catch(function(error) {
+                    console.error('There was a problem with your fetch operation:', error);
+                });
+            }
+        });
+        // 添加一个新的函数来处理关键字推荐的显示
+        function displayKeywordSuggestions(data) {
+            var keywordSuggestionsDiv = document.getElementById('keyword-suggestions');
+            keywordSuggestionsDiv.innerHTML = ''; // 清空之前的推送
+        
+            data.forEach(function(keyword) {
+                var keywordSuggestion = document.createElement('div');
+                keywordSuggestion.className = 'keyword-suggestion';
+                keywordSuggestion.textContent = keyword;
+                keywordSuggestion.addEventListener('click', function() {
+                    document.getElementById('search-input').value = keyword;
+                    keywordSuggestionsDiv.style.display = 'none';
+                });
+                keywordSuggestionsDiv.appendChild(keywordSuggestion);
+            });
+            keywordSuggestionsDiv.style.display = 'block'; // 显示关键词推送
+        }
+        // 添加一个新的函数来处理搜索结果的显示
+        function displaySearchResults(data) {
+            var searchResultsDiv = document.getElementById('search-results');
+            searchResultsDiv.innerHTML = ''; // 清空搜索结果区域
+        
+            // 循环遍历搜索结果数据并动态创建搜索结果元素
+            data.forEach(function(result) {
+                var searchResultItem = document.createElement('div');
+                searchResultItem.className = 'search-result-item';
+        
+                var titleElement = document.createElement('div');
+                titleElement.className = 'search-result-title';
+                titleElement.textContent = result.title;
+        
+                var linkElement = document.createElement('a');
+                linkElement.className = 'search-result-link';
+                linkElement.href = result.link;
+                linkElement.textContent = result.link;
+                linkElement.target = "_blank";
+        
+                var contentElement = document.createElement('div');
+                contentElement.className = 'search-result-content';
+                contentElement.textContent = result.content;
+        
+                searchResultItem.appendChild(titleElement);
+                searchResultItem.appendChild(linkElement);
+                searchResultItem.appendChild(contentElement);
+        
+                searchResultsDiv.appendChild(searchResultItem);
+            });
+        }
+    </script>
+</body>
+</html>
+
