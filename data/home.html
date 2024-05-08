@@ -41,20 +41,20 @@
             text-align: left;
         }
 
-        .search-result-item {
+        .WebQuery {
             margin-bottom: 10px;
         }
 
-        .search-result-title {
+        .title {
             font-weight: bold;
         }
 
-        .search-result-link {
+        .link {
             color: #3385ff;
             text-decoration: none;
         }
 
-        .search-result-content {
+        .content {
             color: #666;
         }
 
@@ -68,25 +68,34 @@
             display: none;
         }
 
-        .keyword-suggestion {
+        .KeyWord {
             padding: 5px;
             cursor: pointer;
         }
     </style>
 </head>
 <body>
-    <div id="container">
-        <form id="search-form">
-            <div style="position: relative;">
-                <input type="text" id="search-input" placeholder="请输入搜索内容">
-                <div id="keyword-suggestions"></div>
-            </div>
-            <button type="submit" id="search-button">搜索</button>
-        </form>
-        <div id="search-results">
-            <!-- 搜索结果将动态添加到这里 -->
+<div id="container" style="display: flex; align-items: center;">
+    <form id="search-form" style="display: flex;">
+        <div style="position: relative; flex: 1;">
+            <input type="text" id="search-input" placeholder="请输入搜索内容" style="width: calc(100% - 120px);">
+            <div id="keyword-suggestions"></div>
         </div>
-    </div>
+        <button type="submit" id="search-button" style="padding: 10px 20px; font-size: 16px; background-color: #3385ff; color: #fff; border: none; cursor: pointer;">搜索</button>
+    </form>
+</div>
+    //<div id="container">
+    //    <form id="search-form">
+    //        <div style="position: relative;">
+    //            <input type="text" id="search-input" placeholder="请输入搜索内容">
+    //            <div id="keyword-suggestions"></div>
+    //        </div>
+    //        <button type="submit" id="search-button">搜索</button>
+    //    </form>
+    //    <div id="search-results">
+    //        <!-- 搜索结果将动态添加到这里 -->
+    //    </div>
+    //</div>
 <script>
     function debounce(func, wait) {
         let timeout;
@@ -109,7 +118,7 @@
                 }
             })
             .then(response => response.ok ? response.json() : Promise.reject('Failed to load keyword suggestions'))
-            .then(displayKeywordSuggestions)
+            .then(data => displayKeywordSuggestions(data.KeyWord)) // 修改以适应预期的JSON结构
             .catch(error => {
                 console.error('Error:', error);
                 keywordSuggestionsDiv.innerHTML = '<div style="padding: 10px; color: red;">Error loading suggestions.</div>';
@@ -133,7 +142,7 @@
                 }
             })
             .then(response => response.ok ? response.json() : Promise.reject('Failed to fetch search results'))
-            .then(displaySearchResults)
+            .then(data => displaySearchResults(data.WebQuery)) // 修改以适应预期的JSON结构
             .catch(error => {
                 console.error('Error:', error);
                 document.getElementById('search-results').innerHTML = '<div style="padding: 10px; color: red;">Error fetching results.</div>';
@@ -141,12 +150,12 @@
         }
     });
 
-    function displayKeywordSuggestions(data) {
+    function displayKeywordSuggestions(keywords) {
         const keywordSuggestionsDiv = document.getElementById('keyword-suggestions');
         keywordSuggestionsDiv.innerHTML = '';
-        data.forEach(keyword => {
+        keywords.forEach(keyword => {
             const keywordSuggestion = document.createElement('div');
-            keywordSuggestion.className = 'keyword-suggestion';
+            keywordSuggestion.className = 'KeyWord';
             keywordSuggestion.textContent = keyword;
             keywordSuggestion.addEventListener('click', () => {
                 document.getElementById('search-input').value = keyword;
@@ -158,25 +167,31 @@
         keywordSuggestionsDiv.style.display = 'block';
     }
 
-    function displaySearchResults(data) {
+    function displaySearchResults(results) {
+        //清空之前的网页
         const searchResultsDiv = document.getElementById('search-results');
         searchResultsDiv.innerHTML = '';
-        data.forEach(result => {
+        //清空之前的关键字
+        const keywordSuggestionsDiv = document.getElementById('keyword-suggestions');
+        keywordSuggestionsDiv.innerHTML = '';
+        keywordSuggestionsDiv.style.display = 'none';
+        results.forEach(result => {
             const searchResultItem = document.createElement('div');
-            searchResultItem.className = 'search-result-item';
+            searchResultItem.className = 'WebQuery';
 
             const titleElement = document.createElement('div');
-            titleElement.className = 'search-result-title';
+            titleElement.className = 'title';
             titleElement.textContent = result.title;
 
             const linkElement = document.createElement('a');
-            linkElement.className = 'search-result-link';
+            linkElement.className = 'link';
             linkElement.href = result.link;
+            //linkElement.textContent = 'Visit Link';  // 更友好的链接文本
             linkElement.textContent = result.link;
             linkElement.target = "_blank";
 
             const contentElement = document.createElement('div');
-            contentElement.className = 'search-result-content';
+            contentElement.className = 'content';
             contentElement.textContent = result.content;
 
             searchResultItem.appendChild(titleElement);

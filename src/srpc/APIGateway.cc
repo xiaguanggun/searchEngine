@@ -71,8 +71,6 @@ void APIGateway::KeyWordSrpc(const HttpReq *req, HttpResp * resp, WFHttpTask *ht
     /* } */ 
     /* string key = form.begin()->second.second; */
     nlohmann::json json = nlohmann::json::parse(req->body());
-    cout << req->body() << "\n";
-    cout << json.dump() << "\n";
     string key = json["keyword"];
     cout << key << "\n";
     // 4.rpc调用
@@ -89,7 +87,10 @@ void APIGateway::keyword_done(HttpResp * resp, respInfo *response, srpc::RPCCont
     string msg = response->msg();
     //2.回复客户端
     /* cout << msg << "\n"; */
-    resp->String(msg);
+    /* resp->set_header_pair("Content-Type","application/json"); */
+    /* resp->String(msg); */
+    nlohmann::json json = nlohmann::json::parse(msg);
+    resp->Json(json);
 }
 
 // 网页查询模块
@@ -138,8 +139,6 @@ void APIGateway::WebQuerySrpc(const HttpReq *req, HttpResp * resp, WFHttpTask *h
     /* } */ 
     /* string key = form.begin()->second.second; */
     nlohmann::json json = nlohmann::json::parse(req->body());
-    cout << req->body() << "\n";
-    cout << json.dump() << "\n";
     string key = json["keyword"];
     cout << key << "\n";
     // 4.rpc调用
@@ -156,5 +155,8 @@ void APIGateway::webquery_done(HttpResp * resp, respInfo *response, srpc::RPCCon
     string msg = response->msg();
     //2.回复客户端
     /* cout << msg << "\n"; */
-    resp->String(msg);
+    /* resp->set_header_pair("Content-Type","application/json"); */
+    /* resp->String(msg); */
+    nlohmann::json json = nlohmann::json::parse(msg);
+    resp->Json(json);
 }
