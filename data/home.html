@@ -75,27 +75,18 @@
     </style>
 </head>
 <body>
-<div id="container" style="display: flex; align-items: center;">
-    <form id="search-form" style="display: flex;">
-        <div style="position: relative; flex: 1;">
-            <input type="text" id="search-input" placeholder="请输入搜索内容" style="width: calc(100% - 120px);">
-            <div id="keyword-suggestions"></div>
+    <div id="container">
+        <form id="search-form">
+            <div style="position: relative;">
+                <input type="text" id="search-input" placeholder="请输入搜索内容">
+                <div id="keyword-suggestions"></div>
+            </div>
+            <button type="submit" id="search-button">搜索</button>
+        </form>
+        <div id="search-results">
+            <!-- 搜索结果将动态添加到这里 -->
         </div>
-        <button type="submit" id="search-button" style="padding: 10px 20px; font-size: 16px; background-color: #3385ff; color: #fff; border: none; cursor: pointer;">搜索</button>
-    </form>
-</div>
-    //<div id="container">
-    //    <form id="search-form">
-    //        <div style="position: relative;">
-    //            <input type="text" id="search-input" placeholder="请输入搜索内容">
-    //            <div id="keyword-suggestions"></div>
-    //        </div>
-    //        <button type="submit" id="search-button">搜索</button>
-    //    </form>
-    //    <div id="search-results">
-    //        <!-- 搜索结果将动态添加到这里 -->
-    //    </div>
-    //</div>
+    </div>
 <script>
     function debounce(func, wait) {
         let timeout;
