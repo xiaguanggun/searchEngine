@@ -28,11 +28,11 @@ void CacheManager::updateCache() {
             caches[i + cacheNum]._pendingNodes = caches[i]._pendingNodes;
         }
     }
-    sleep(10);
     // 同步到主cache
     for(size_t i = 1; i <= cacheNum; ++i){
         caches[0].update(caches[i + cacheNum]);
     }
+    sleep(2);
     // 拷贝回所有子线程的备份cache
     for(size_t i = 1; i <= cacheNum; ++i){
         caches[i + cacheNum] = caches[0];

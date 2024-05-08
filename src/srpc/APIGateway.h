@@ -20,10 +20,12 @@ public:
     }
     void start(unsigned short port);
     void loadModules(){
+        loadStaticResourceModule();
         loadKeyWordModule();
         loadWebQueryModule();
     }
 private:
+    void loadStaticResourceModule();
     // 关键词推荐模块
     void loadKeyWordModule();
     void KeyWordCb(const HttpReq *req, HttpResp * resp, SeriesWork * series);

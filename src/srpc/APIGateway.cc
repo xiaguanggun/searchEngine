@@ -20,9 +20,15 @@ void APIGateway::start(unsigned short port)
     }
 }
 
+void APIGateway::loadStaticResourceModule(){
+    _httpserver.GET("/", [](const HttpReq *, HttpResp * resp){
+                    resp->File("../data/home.html");
+                    });
+}
+
 void APIGateway::loadKeyWordModule()
 {
-    _httpserver.GET("/KeyWord", std::bind(&APIGateway::KeyWordCb,this,_1,_2,_3));
+    _httpserver.POST("/KeyWord", std::bind(&APIGateway::KeyWordCb,this,_1,_2,_3));
 }
 void APIGateway::KeyWordCb(const HttpReq *req, HttpResp * resp, SeriesWork * series){
     // 获取所有InfoService ip&port返回值是json文件
@@ -32,7 +38,7 @@ void APIGateway::KeyWordCb(const HttpReq *req, HttpResp * resp, SeriesWork * ser
     series->push_back(httpTask);
 }
 void APIGateway::KeyWordSrpc(const HttpReq *req, HttpResp * resp, WFHttpTask *httpTask){
-    if(req->content_type() != MULTIPART_FORM_DATA) {
+    if(req->content_type() != APPLICATION_JSON) {
         resp->String("Content_type error");
         return;
     }
@@ -58,12 +64,14 @@ void APIGateway::KeyWordSrpc(const HttpReq *req, HttpResp * resp, WFHttpTask *ht
         return;
     }
     // 3.获取key
-    Form &form = req->form();
-    if (form.empty()){
-        resp->set_status(HttpStatusBadRequest);
-        return;
-    } 
-    string key = form.begin()->second.second;
+    /* Form &form = req->form(); */
+    /* if (form.empty()){ */
+    /*     resp->set_status(HttpStatusBadRequest); */
+    /*     return; */
+    /* } */ 
+    /* string key = form.begin()->second.second; */
+    nlohmann::json json = nlohmann::json::parse(req->body());
+    string key = json["key"];
     cout << key << "\n";
     // 4.rpc调用
 	KeyWord::SRPCClient client(ip.c_str(), port);
@@ -85,7 +93,7 @@ void APIGateway::keyword_done(HttpResp * resp, respInfo *response, srpc::RPCCont
 // 网页查询模块
 void APIGateway::loadWebQueryModule()
 {
-    _httpserver.GET("/WebQuery", std::bind(&APIGateway::WebQueryCb,this,_1,_2,_3));
+    _httpserver.POST("/WebQuery", std::bind(&APIGateway::WebQueryCb,this,_1,_2,_3));
 }
 void APIGateway::WebQueryCb(const HttpReq *req, HttpResp * resp, SeriesWork * series){
     // 获取所有InfoService ip&port返回值是json文件
@@ -95,7 +103,7 @@ void APIGateway::WebQueryCb(const HttpReq *req, HttpResp * resp, SeriesWork * se
     series->push_back(httpTask);
 }
 void APIGateway::WebQuerySrpc(const HttpReq *req, HttpResp * resp, WFHttpTask *httpTask){
-    if(req->content_type() != MULTIPART_FORM_DATA) {
+    if(req->content_type() != APPLICATION_JSON) {
         resp->String("Content_type error");
         return;
     }
@@ -121,12 +129,14 @@ void APIGateway::WebQuerySrpc(const HttpReq *req, HttpResp * resp, WFHttpTask *h
         return;
     }
     // 3.获取用户名和密码
-    Form &form = req->form();
-    if (form.empty()){
-        resp->set_status(HttpStatusBadRequest);
-        return;
-    } 
-    string key = form.begin()->second.second;
+    /* Form &form = req->form(); */
+    /* if (form.empty()){ */
+    /*     resp->set_status(HttpStatusBadRequest); */
+    /*     return; */
+    /* } */ 
+    /* string key = form.begin()->second.second; */
+    nlohmann::json json = nlohmann::json::parse(req->body());
+    string key = json["key"];
     cout << key << "\n";
     // 4.rpc调用
 	WebQuery::SRPCClient client(ip.c_str(), port);

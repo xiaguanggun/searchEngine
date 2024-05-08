@@ -6,6 +6,7 @@
 #include "info.h"
 #include "service.srpc.h"
 #include "CacheManager.h"
+#include "../shared/Configuration.h"
 #include "../shared/Mylogger.h"
 #include "../online/Dictionary.h"
 using namespace std::placeholders;
@@ -16,13 +17,15 @@ using std::string;
 
 #define SERVICEID KEYWORDSERVICENAME"1"
 #define CACHENUM 4
-#define CACHEFILENAME "cachesKeyWord.dat"
+#define CACHEFILENAME "../data/cachesKeyWord.dat"
 
 static WFFacilities::WaitGroup wait_group(1);
+static bool isExit = false;
 
 void sig_handler(int signo)
 {
     LogInfo(KEYWORDSERVICENAME" close");
+    isExit = true;
 	wait_group.done();
 }
 
@@ -47,6 +50,9 @@ public:
 // timerCb1 to servicePass
 void timerCb1(WFTimerTask * timerTask){
     /* cout << "now = " << time(nullptr) << "\n"; */
+    if(isExit){
+        return;
+    }
     agent::Agent * pagent = (agent::Agent *)timerTask->user_data;
     pagent->servicePass(SERVICEID);
     WFTimerTask * nextTask =
@@ -54,20 +60,24 @@ void timerCb1(WFTimerTask * timerTask){
     nextTask->user_data = pagent;
     series_of(timerTask)->push_back(nextTask);
 }
-// timerCb2 to updateCache
+// timerCb2 to updateCache & writeToFile
 void timerCb2(WFTimerTask * timerTask){
     /* cout << "now = " << time(nullptr) << "\n"; */
+    if(isExit){
+        return;
+    }
     CacheManager::updateCache();
+    CacheManager::writeToFile();
     WFTimerTask * nextTask =
-        WFTaskFactory::create_timer_task(30,0,timerCb2);
+        WFTaskFactory::create_timer_task(10,0,timerCb2);
     series_of(timerTask)->push_back(nextTask);
 }
 
 int main()
 {
-    /* ::signal(SIGINT,sig_handler); */
+    ::signal(SIGINT,sig_handler);
     // 初始化
-    /* Configuration::getInstance(); */
+    Configuration::getInstance();
     CacheManager::init(CACHENUM,CACHEFILENAME);
     Dictionary::init();
 
@@ -91,7 +101,7 @@ int main()
     timerTask1->start();
     // timerTask to updateCache
     WFTimerTask * timerTask2 =
-        WFTaskFactory::create_timer_task(30,0,timerCb2);
+        WFTaskFactory::create_timer_task(10,0,timerCb2);
     timerTask2->start();
 
     // SRPCServer
@@ -104,8 +114,6 @@ int main()
 
 	server.start(port);
 	wait_group.wait();
-    CacheManager::writeToFile();
-    CacheManager::destory();
 	server.stop();
 	google::protobuf::ShutdownProtobufLibrary();
 	return 0;

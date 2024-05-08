@@ -1,6 +1,9 @@
+#include <sys/types.h>
+#include <unistd.h>
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <workflow/WFTaskFactory.h>
 #include <wfrest/json.hpp>
 #include "../shared/Mylogger.h"
 #include "Cache.h"
@@ -8,23 +11,7 @@ using std::cout;
 using std::ifstream;
 using std::ofstream;
 using std::istringstream;
-
-#if 0
-void Cache::prints(){
-    for(auto & it:_hashmap){
-        ::printf("%p\n",&(*it.second));
-    }
-    for(auto & it:_cacheNodes){
-        ::printf("%p\n",&(it));
-    }
-    for(auto & it:_hashmap){
-        cout << it.first << " " << it.second->second << "\n";
-    }
-    for(auto & it:_cacheNodes){
-        cout << it.first << " " << it.second << "\n";
-    }
-}
-#endif
+using std::ostringstream;
 
 // 拷贝构造
 Cache::Cache(const Cache & lhs){
@@ -34,10 +21,6 @@ Cache::Cache(const Cache & lhs){
         _hashmap[it.first] = _cacheNodes.begin();
     }
 }
-// 移动构造
-/* Cache::Cache(Cache && lhs){ */
-
-/* } */
 // 重载operator=
 Cache& Cache::operator=(const Cache & lhs){
     // 清空自己的内存
@@ -96,7 +79,7 @@ void Cache::update(const Cache & cache){
 
 // 缓存从文件初始化
 void Cache::readFromFile(const string& filename){
-    std::cout << "load Cache" << filename << "\n";
+    std::cout << "load Cache " << filename << "\n";
     ifstream ifs(filename);
     if(!ifs){
         LogInfo("load Cache file failed");
@@ -116,7 +99,7 @@ void Cache::readFromFile(const string& filename){
 
 // 缓存持久化
 void Cache::writeToFile(const string& filename){
-    std::cout << "save Cache" << filename << "\n";
+    std::cout << "save Cache " << filename << "\n";
     ofstream ofs(filename);
     if(!ofs){
         LogError("save Cache file failed");

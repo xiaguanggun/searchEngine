@@ -22,7 +22,7 @@ public:
     static void writeToFile();
     static void destory();
 private:
-    CacheManager(){}
+    CacheManager();
     ~CacheManager(){}
 private:
     static CacheManager * _pInstance;
@@ -45,10 +45,10 @@ inline void CacheManager::destory(){
         _pInstance = nullptr;
     }
 }
-/* inline CacheManager::CacheManager(){ */
-    /* ::atexit(&CacheManager::destory); // 自动销毁 */
-    /* ::atexit(&CacheManager::writeToFile); // 缓存持久化 */
-/* } */
+inline CacheManager::CacheManager(){
+    ::atexit(&CacheManager::destory); // 自动销毁
+    ::atexit(&CacheManager::writeToFile); // 缓存持久化
+}
 
 // 查询缓存,不需要上锁
 inline string CacheManager::queryCache(size_t idx,const string& key){
