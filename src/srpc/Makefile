@@ -33,16 +33,6 @@ $(KeyWordService):$(filter-out main.o WebQueryService.o,$(OBJS)) $(SHAREDOBJS) $
 	$(CC) $^ -o $@ $(LIBS) $(FLAGS)
 $(WebQueryService):$(filter-out main.o KeyWordService.o,$(OBJS)) $(SHAREDOBJS) $(ONLINE)/WebPageQuery.o
 	$(CC) $^ -o $@ $(LIBS) $(FLAGS)
-%.o:%.cc
-	$(CC) -c $^ -o $@ $(FLAGS)
-$(SHARED)/%.o:$(SHARED)/%.cpp
-	$(CC) -c $^ -o $@ $(FLAGS)
-$(REACTOR)/%.o:$(REACTOR)/%.cpp
-	$(CC) -c $^ -o $@ $(FLAGS)
-$(CACHE)/%.o:$(CACHE)/%.cpp
-	$(CC) -c $^ -o $@ $(FLAGS)
-$(ONLINE)/%.o:$(ONLINE)/%.cpp
-	$(CC) -c $^ -o $@ $(FLAGS)
 
 .PHONY:all service clean rebuild
 service:$(KeyWordService) $(WebQueryService)
