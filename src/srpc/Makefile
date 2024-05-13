@@ -5,6 +5,7 @@ ONLINE:=../online
 SERVER:=../../bin/apiGateway
 KeyWordService:=../../bin/KeyWordService
 WebQueryService:=../../bin/WebQueryService
+FLAGS:= -Wall
 LIBS:=  -lwfrest -lworkflow -lcrypt \
 		-lalibabacloud-oss-cpp-sdk -lssl -lcrypto \
 		-lcurl -lpthread -lrabbitmq -lSimpleAmqpClient \
@@ -21,24 +22,27 @@ CACHEOBJS:=$(patsubst $(CACHE)/%.cpp,$(CACHE)/%.o,$(CACHESRCS))
 ONLINESRCS:=$(wildcard $(ONLINE)/*.cpp)
 ONLINEOBJS:=$(patsubst $(ONLINE)/%.cpp,$(ONLINE)/%.o,$(ONLINESRCS))
 CC:=g++
+ifdef DEBUG
+	FLAGS += -g -DDEBUG
+endif
 # 目标 : 依赖
 all:$(SERVER) $(KeyWordService) $(WebQueryService)
 $(SERVER):main.o service.pb.o APIGateway.o
-	$(CC) $^ -o $@ $(LIBS) -g
+	$(CC) $^ -o $@ $(LIBS) $(FLAGS)
 $(KeyWordService):$(filter-out main.o WebQueryService.o,$(OBJS)) $(SHAREDOBJS) $(ONLINE)/Dictionary.o
-	$(CC) $^ -o $@ $(LIBS) -g
+	$(CC) $^ -o $@ $(LIBS) $(FLAGS)
 $(WebQueryService):$(filter-out main.o KeyWordService.o,$(OBJS)) $(SHAREDOBJS) $(ONLINE)/WebPageQuery.o
-	$(CC) $^ -o $@ $(LIBS) -g
+	$(CC) $^ -o $@ $(LIBS) $(FLAGS)
 %.o:%.cc
-	$(CC) -c $^ -o $@ -g
+	$(CC) -c $^ -o $@ $(FLAGS)
 $(SHARED)/%.o:$(SHARED)/%.cpp
-	$(CC) -c $^ -o $@ -g
+	$(CC) -c $^ -o $@ $(FLAGS)
 $(REACTOR)/%.o:$(REACTOR)/%.cpp
-	$(CC) -c $^ -o $@ -g
+	$(CC) -c $^ -o $@ $(FLAGS)
 $(CACHE)/%.o:$(CACHE)/%.cpp
-	$(CC) -c $^ -o $@ -g
+	$(CC) -c $^ -o $@ $(FLAGS)
 $(ONLINE)/%.o:$(ONLINE)/%.cpp
-	$(CC) -c $^ -o $@ -g
+	$(CC) -c $^ -o $@ $(FLAGS)
 
 .PHONY:all service clean rebuild
 service:$(KeyWordService) $(WebQueryService)
